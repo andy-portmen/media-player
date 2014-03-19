@@ -1,0 +1,34 @@
+{
+  "name": "Youtube™ Media Player",
+  "version": "0.1.1",
+  "manifest_version": 2,
+  "short_name": "iyplayer",
+  "description": "Youtube™ Media Player.",
+  "author": "Andy Portmen",
+  "permissions": [
+    "contextMenus",
+    "storage",
+    "tabs", 
+    "<all_urls>"
+  ],
+  "browser_action": {
+    "default_icon": "data/icon16.png",
+    "default_popup": "data/popup/popup.html",
+    "default_title": "Simple Translate"
+  },
+  "background": {
+    "scripts": ["lib/task.js", "lib/chrome.js", "lib/common.js"]
+  },
+  "content_scripts": [{
+    "matches": ["http://www.youtube.com/*", "https://www.youtube.com/*"], 
+    "js": ["data/content_script/inject.js"], 
+    "run_at": "document_idle", 
+    "all_frames": true
+  }],
+  "options_page": "data/options/options.html",
+  "icons": {
+    "16": "data/icon16.png",
+    "48": "data/icon48.png",
+    "128": "data/icon128.png" 
+  }
+}
