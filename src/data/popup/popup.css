@@ -5,6 +5,7 @@ body {
   color: #444;
   margin: 0 5px 0 5px;
   background-color: #fff;
+  -webkit-user-select: none;
   -moz-user-select: none;
   cursor: defualt;
   border: solid 0px red;
@@ -74,8 +75,6 @@ tr td {
   width: 50px; 
   border-radius: 2px;
   background: #F3F3F3 url(volume.png) no-repeat center center;
-  -webkit-user-select: none;
-  -moz-user-select: none;
 }
 #volume-td div {
   width: 3px;
@@ -158,6 +157,7 @@ tr td {
 #items-table tr td{
   -webkit-transition: 200ms opacity; 
   -moz-transition: 200ms opacity;
+  cursor: pointer;
   opacity: 0.65;
 }
 #items-table tr td:hover{
@@ -176,7 +176,6 @@ tr td {
 }
 #items-table tr td[name='play-icon'] {
   background: #F3F3F3 url(play-track.png) no-repeat center center;
-  cursor: pointer;
 }
 #items-table tr[state='play'] td[name='play-icon'] {
   background: #F3F3F3 url(pause-track.png) no-repeat center center;
@@ -190,14 +189,12 @@ tr td {
 }
 #items-table tr td[name='close-track'] {
   background: #F3F3F3 url(close-track.png) no-repeat center center;
-  cursor: pointer;
 }
 #items-table tr td[name='loop-track'],
 #items-table tr td[name='loop-track'][loopIndex='undefined'],
 #items-table tr td[name='loop-track'][loopIndex='0'] {
   width: 28px;
   background: #F3F3F3 url(loop-track.png) no-repeat center center;
-  cursor: pointer;
 }
 #items-table tr td[name='loop-track'][loopIndex='1'] {
   background: #F3F3F3 url(loop-track-1.png) no-repeat center center;

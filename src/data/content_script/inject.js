@@ -31,32 +31,38 @@ function $(id) {
   return $.cache[id];
 }
 
-// ******* This is to Support HTML5 YouTube Videos in Google Chrome *******
-var iyplayer = 'function iyplayer(e) {document.body.dispatchEvent(new CustomEvent("iyplayer-event", {detail: {state: e}}));}';
-location.href = 'javascript:' + iyplayer + '(' + inject + ')()';
-function inject() {
-  var player = document.getElementById('movie_player') || document.getElementById('movie_player-flash');
-  player.addEventListener("onStateChange", "iyplayer");
-  document.body.addEventListener("iplayer-send-command", function (e) {
-    switch (e.detail.cmd) 
-    {
-    case "play":
-      player.playVideo();
-      break;
-    case "pause":
-      player.pauseVideo();
-      break;
-    case "stop":
-      player.stopVideo();
-      player.clearVideo();
-      break;
-    case "setVolume":
-      player.setVolume(e.detail.volume);
-      break;
+// ******* Only for Google Chrome on HML5 player *******
+if (window.navigator.vendor.match(/Google/)) {
+  (function () {
+    function inject() {
+      var iyplayer = document.getElementById('movie_player') || document.getElementById('movie_player-flash');
+      iyplayer.addEventListener("onStateChange", "iyplayer");
+      document.body.addEventListener("iplayer-send-command", function (e) {
+        switch (e.detail.cmd) 
+        {
+        case "play":
+          iyplayer.playVideo();
+          break;
+        case "pause":
+          iyplayer.pauseVideo();
+          break;
+        case "stop":
+          iyplayer.stopVideo();
+          iyplayer.clearVideo();
+          break;
+        case "setVolume":
+          iyplayer.setVolume(e.detail.volume);
+          break;
+        }
+      });
     }
-  });
-}
-
+    var code = 'function iyplayer(e) {document.body.dispatchEvent(new CustomEvent("iyplayer-event", {detail: {state: e}}));}' +
+               '(' + inject + ')();';
+    var script = document.createElement("script");
+    script.src = "data:text/plain," + code;
+    document.body.appendChild(script);
+  })();
+};
 function getVideoUrl() {
   return window.location.href;
 }
@@ -89,7 +95,6 @@ function youtube (callback, pointer) {
     // Accessing the JavaScript functions of the embedded player'
     p = $('movie_player') || $('movie_player-flash') || {};
     p = (typeof XPCNativeWrapper != "undefined") ? XPCNativeWrapper.unwrap (p) : p;
-
     var extend = {
       getAvailableQualityLevels: p.getAvailableQualityLevels,
       getDuration: function () {return p.getDuration ? p.getDuration() : 0},
@@ -124,7 +129,7 @@ function youtube (callback, pointer) {
     return extend;
   }
   player = new Player();
-  // if (player && player.getAvailableQualityLevels) {
+  // if (player && player.getAvailableQualityLevels) {  
   if (true){
     callback.call(pointer);
   }
@@ -148,7 +153,7 @@ function init () {
       }
     }
     else {  // ******* This is Only for Chrome Browser *******
-      document.body.addEventListener("iyplayer-event", function (e) {
+      document.body.addEventListener("iyplayer-event", function (e) {   
         background.send('player-state-changed', {
           state: e.detail.state,
           id: player.getVideoId()
@@ -159,7 +164,6 @@ function init () {
 }
 
 background.receive("player-play", function (videoId) {
-  console.error(videoId , player.getVideoId())
   if (videoId == player.getVideoId()) {
     player.play();
   }
@@ -172,10 +176,13 @@ background.receive("player-pause", function (videoId) {
 background.receive("player-stop", function () {
   player.stop();
 });
-background.receive("player-new-id", function (obj) {
+background.receive("player-new-id", function (obj) { 
   if (obj.id == player.getVideoId()) {
     window.location.replace("https://www.youtube.com/watch?v=" + obj.newID);
   }
+});
+background.receive("popupVolumeIndex", function (vol) {
+  player.setVolume(vol * 10 + 10);
 });
 background.receive("request-inits", function (obj) {
   player.setVolume(obj.volume * 10 + 10);

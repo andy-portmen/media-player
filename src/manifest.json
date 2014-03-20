@@ -19,12 +19,6 @@
   "background": {
     "scripts": ["lib/task.js", "lib/chrome.js", "lib/common.js"]
   },
-  "content_scripts": [{
-    "matches": ["http://www.youtube.com/*", "https://www.youtube.com/*"], 
-    "js": ["data/content_script/inject.js"], 
-    "run_at": "document_idle", 
-    "all_frames": true
-  }],
   "options_page": "data/options/options.html",
   "icons": {
     "16": "data/icon16.png",

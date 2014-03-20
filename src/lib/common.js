@@ -47,7 +47,6 @@ function saveToHistory(obj) {
   if (!obj.id || !obj.title) return;
   var numberHistoryItems = 100;
   var lStorage_obj = readHistory();
-  
   var isHere = false;
   for (var i = 0; i < lStorage_obj.length; i++) {
     if (obj.id == lStorage_obj[i][0]) {
@@ -55,7 +54,6 @@ function saveToHistory(obj) {
       break;
     }
   }
-  
   if (!isHere) {
     lStorage_obj.push([obj.id, obj.title, obj.duration]);
     if (lStorage_obj.length > numberHistoryItems) { // Only store up to the numberHistoryItems items
@@ -85,8 +83,6 @@ function updatePopup() {
 }
 
 content_script.receive("player-state-changed", function (obj) {
-  console.error(obj)
-  
   states[obj.id] = obj.state;
   if (obj.state == 0) { // Video ended
     var loopsIndex = loops[obj.id];
@@ -164,6 +160,7 @@ popup.receive("popupHistoryIndex", function (historyIndex) {
 
 popup.receive("popupVolumeIndex", function (volumeIndex) {
   storage.write("popupVolumeIndex", volumeIndex);
+  content_script.send('popupVolumeIndex', volumeIndex);
 });
 
 popup.receive("delete-track", function (videoId) {
@@ -173,7 +170,7 @@ popup.receive("delete-track", function (videoId) {
 
 // Initialization
 if (!storage.read("history")) {
-  storage.write("[]");
+  storage.write([]);
 }
 if (!storage.read("popupHistoryIndex")) {
   storage.write('0');
@@ -184,3 +181,51 @@ if (!storage.read("popupVolumeIndex")) {
 if (!storage.read("loop-all")) {
   storage.write('0');
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var tabURL = {};
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, updatedTab) {
+  if (tabURL[updatedTab.id] != updatedTab.url) {
+    console.error('got url');
+    tabURL[updatedTab.id] = updatedTab.url;
+    
+    chrome.tabs.executeScript(tab.id, {
+        code: 'var tabId = ' + tabId + ';'
+    }, function() {
+        chrome.tabs.executeScript(tab.id, {
+          file: "data/content_script/initial_inject.js",
+          runAt: "document_idle"
+        });
+    });
+  }
+});
+
+content_script.receive('time_to_run', function (tabId) {
+  chrome.tabs.executeScript(tabId, {
+    file: "data/content_script/inject.js",
+    runAt: "document_idle"
+  }, null);
+});
+

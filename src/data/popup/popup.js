@@ -78,10 +78,11 @@ background.receive('history-update', function (obj) {
       duration = (new Date(1970,1,1,0,0,duration)).toTimeString().substr(0,8);  
       tr.getElementsByTagName("td")[1].textContent = title;
       /* 
+        play (1)
         ended (0), 
         paused (2), 
-        video cued (5) or 
-        unstarted or stopped(-1)
+        video cued /stop (5) or 
+        unstarted (-1)
       */
       switch (states[videoId]) {
       case 2:
@@ -181,6 +182,19 @@ $("items-table").addEventListener('click',function (e) {
     if (target.parentNode.getElementsByTagName('td')[2] == target) {
       background.send('delete-track', target.parentNode.getAttribute('videoId'));
     }
+    else if (target.parentNode.getElementsByTagName('td')[3] == target) {
+      var index = parseInt(target.getAttribute("loopIndex")) || 0;
+      index++;
+      if (index > 6) index = 0;
+      background.send("loop-track", {
+        id: target.parentNode.getAttribute('videoId'),
+        loopIndex: index
+      });
+    }
+    else {
+      var videoId = target.parentNode.getAttribute('videoId');
+      background.send(states[videoId] == 1 ? 'player-pause' : 'player-play', videoId);
+    }
   }
 }, false);
 
@@ -197,33 +211,4 @@ $('scroll-down-td').addEventListener('click', function () {
 $("playlist-div").addEventListener("mousewheel", function (e) {
   historyIndex += e.wheelDelta > 0 ? -1 : +1;
   background.send("history-update");
-}, false);
-
-$("items-table").addEventListener('click',function (e) {
-  var target = e.originalTarget || e.target;
-  if (target.localName === "td") {
-    if (target.parentNode.getElementsByTagName('td')[0] == target) {
-      if (target.getAttribute('name') == 'play-track') {
-        target.setAttribute('name', 'pause-track');
-      }
-      else if (target.getAttribute('name') == 'pause-track') {
-        target.setAttribute('name', 'play-track');
-      }
-    }
-  }
-}, false);
-
-$("items-table").addEventListener('click',function (e) {
-  var target = e.originalTarget || e.target;
-  if (target.localName === "td") {
-    if (target.parentNode.getElementsByTagName('td')[3] == target) {
-      var index = parseInt(target.getAttribute("loopIndex")) || 0;
-      index++;
-      if (index > 6) index = 0;
-      background.send("loop-track", {
-        id: target.parentNode.getAttribute('videoId'),
-        loopIndex: index
-      });
-    }
-  }
 }, false);
