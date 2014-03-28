@@ -38,7 +38,7 @@ else {
 
 var states = {}, loops = {}, tabURL = {};
 
-// ******** 1st inject "initial_inject.js" then "inject.js" ********
+// ******** 1st inject "initial_inject.js" then run "init()" ********
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, updatedTab) {
   if (tabURL[tabId] != updatedTab.url) {
     states[(/[?&]v=([^&]+)/.exec(tabURL[tabId]) || [null,null])[1]] = -1;
@@ -200,7 +200,7 @@ if (!storage.read("loop-all")) {
   storage.write('0');
 }
 if (!storage.read("numberHistoryItems")) {
-  storage.write("numberHistoryItems", '500');
+  storage.write("numberHistoryItems", '20');
 }
 
 

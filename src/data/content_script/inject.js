@@ -72,6 +72,13 @@ function stop()              {document.body.dispatchEvent(new CustomEvent("iplay
 function setVolume(v)        {document.body.dispatchEvent(new CustomEvent("iplayer-send-command", {detail: {cmd: "setVolume", volume: v}}));}
 // *******************
 
+function html5GetDuration() {
+  var str = (document.querySelector(".ytp-time-duration") || {textContent: ""}).textContent;
+  var p = str.split(':'), s = 0, m = 1;
+  while (p.length > 0) {s += m * parseInt(p.pop(), 10); m *= 60;}
+  return s;
+}
+
 var player;
 function youtube (callback, pointer) {
   function Player () {
@@ -79,7 +86,7 @@ function youtube (callback, pointer) {
     p = (typeof XPCNativeWrapper != "undefined") ? XPCNativeWrapper.unwrap (p) : p;
     var extend = {
       getAvailableQualityLevels: p.getAvailableQualityLevels,
-      getDuration:      function ()     {return p.getDuration ? p.getDuration() : 0},
+      getDuration:      function ()     {return p.getDuration ? p.getDuration() : html5GetDuration()},
       getTitle:         function ()     {if (!window.content.document && !document) return "no title 1"; return [].reduce.call((window.content.document || document).getElementsByClassName("watch-title"), function (p, c) {return c.title;}, "no title 2");},
       getVideoUrl:      function ()     {return p.getVideoUrl() || getVideoUrl()},
       getVideoId:       function ()     {if (p.getVideoUrl) {return (/[?&]v=([^&]+)/.exec(p.getVideoUrl()) || [null,null])[1];} else {return getVideoId();}},
