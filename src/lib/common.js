@@ -35,7 +35,31 @@ else {
   Deferred = task.Deferred;
 }
 /********/
-var states = {}, loops = {};
+
+var states = {}, loops = {}, tabURL = {};
+
+// ******** 1st inject "initial_inject.js" then "inject.js" ********
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, updatedTab) {
+  if (tabURL[updatedTab.id] != updatedTab.url) {
+    tabURL[updatedTab.id] = updatedTab.url;
+    chrome.tabs.executeScript(tabId, {
+        code: 'var tabId = ' + tabId + ';'
+    }, function() {
+        chrome.tabs.executeScript(tabId, {
+          file: "data/content_script/initial_inject.js",
+          runAt: "document_idle"
+        }, null);
+    });
+  }
+});
+
+content_script.receive('time_to_run', function (tabId) {
+  chrome.tabs.executeScript(tabId, {
+    file: "data/content_script/inject.js",
+    runAt: "document_idle"
+  }, null);
+});
+// *************
 
 function readHistory() {
   var lStorage = storage.read("history");
@@ -45,7 +69,7 @@ function readHistory() {
 
 function saveToHistory(obj) {
   if (!obj.id || !obj.title) return;
-  var numberHistoryItems = 100;
+  var numberHistoryItems = parseInt(storage.read('numberHistoryItems'));
   var lStorage_obj = readHistory();
   var isHere = false;
   for (var i = 0; i < lStorage_obj.length; i++) {
@@ -69,6 +93,10 @@ function deleteHistory(videoId) {
       return !(a[0] == videoId);
   });
   storage.write("history", JSON.stringify(lStorage_obj));
+}
+
+function clearHistory() {
+  storage.write("history", "[]");
 }
 
 function updatePopup() {
@@ -114,6 +142,7 @@ content_script.receive("player-state-changed", function (obj) {
   updatePopup();
 });
 content_script.receive('player-details', function (data) {
+  console.error(data)
   saveToHistory(data);
 });
 content_script.receive("request-inits", function () {
@@ -122,7 +151,6 @@ content_script.receive("request-inits", function () {
   });
 });
 popup.receive('player-play', function (videoId) {
-  console.error(states[videoId], videoId)
   if (states[videoId] && states[videoId] != -1) {
     content_script.send('player-play', videoId);
   } else {
@@ -149,20 +177,16 @@ popup.receive('loop-track', function (obj) {
   loops[obj.id] = obj.loopIndex;
   updatePopup();
 });
-
 popup.receive("history-update", function () {
   updatePopup();
 });
-
 popup.receive("popupHistoryIndex", function (historyIndex) {
   storage.write("popupHistoryIndex", historyIndex);
 });
-
 popup.receive("popupVolumeIndex", function (volumeIndex) {
   storage.write("popupVolumeIndex", volumeIndex);
   content_script.send('popupVolumeIndex', volumeIndex);
 });
-
 popup.receive("delete-track", function (videoId) {
   deleteHistory(videoId);
   updatePopup();
@@ -181,51 +205,12 @@ if (!storage.read("popupVolumeIndex")) {
 if (!storage.read("loop-all")) {
   storage.write('0');
 }
+if (!storage.read("numberHistoryItems")) {
+  storage.write("numberHistoryItems", '500');
+}
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-var tabURL = {};
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, updatedTab) {
-  if (tabURL[updatedTab.id] != updatedTab.url) {
-    console.error('got url');
-    tabURL[updatedTab.id] = updatedTab.url;
-    
-    chrome.tabs.executeScript(tab.id, {
-        code: 'var tabId = ' + tabId + ';'
-    }, function() {
-        chrome.tabs.executeScript(tab.id, {
-          file: "data/content_script/initial_inject.js",
-          runAt: "document_idle"
-        });
-    });
-  }
-});
-
-content_script.receive('time_to_run', function (tabId) {
-  chrome.tabs.executeScript(tabId, {
-    file: "data/content_script/inject.js",
-    runAt: "document_idle"
-  }, null);
-});
 

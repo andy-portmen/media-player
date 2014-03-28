@@ -59,9 +59,7 @@ background.receive('history-update', function (obj) {
   var isPlay = false;  // Play button
   for (id in states) {isPlay = isPlay || (states[id] == 1);}
   $("play-td").setAttribute('name', isPlay ? 'pause' : 'play');
-  if (typeof historyIndex == 'undefined') {
-    historyIndex =  obj.historyIndex;
-  }
+  if (typeof historyIndex == 'undefined') {historyIndex =  obj.historyIndex;}
   var trs = $('items-table').getElementsByTagName('tr');
   // Making sure the historyIndex is working fine
   if (historyIndex < 0) {historyIndex = 0;}
@@ -77,13 +75,7 @@ background.receive('history-update', function (obj) {
       var duration = history[q][2];
       duration = (new Date(1970,1,1,0,0,duration)).toTimeString().substr(0,8);  
       tr.getElementsByTagName("td")[1].textContent = title;
-      /* 
-        play (1)
-        ended (0), 
-        paused (2), 
-        video cued /stop (5) or 
-        unstarted (-1)
-      */
+      /* play (1), ended (0), paused (2), video cued /stop (5) or unstarted (-1)*/
       switch (states[videoId]) {
       case 2:
         tr.setAttribute('state', 'pause');
@@ -134,6 +126,7 @@ $('play-td').addEventListener('click', function () {
     background.send("player-pause", "all");
   }
 }, false);
+
 $('next-td').addEventListener('click', function () {
   for (var i = 0; i < history.length - 1; i++) {
     if (states[history[i][0]] == 1 || states[history[i][0]] == 2) {
@@ -145,6 +138,7 @@ $('next-td').addEventListener('click', function () {
     }
   }
 }, false);
+
 $('previous-td').addEventListener('click', function () {
   for (var i = 1; i < history.length; i++) {
     if (states[history[i][0]] == 1 || states[history[i][0]] == 2) {
@@ -212,3 +206,56 @@ $("playlist-div").addEventListener("mousewheel", function (e) {
   historyIndex += e.wheelDelta > 0 ? -1 : +1;
   background.send("history-update");
 }, false);
+
+function commonWords(title, wordlist) {
+  title = title.toLowerCase();
+  wordlist = wordlist.toLowerCase().split(/\s+/);
+  return wordlist.every(
+    function (itm) {return title.indexOf(itm)!= -1;}
+  );
+}
+
+function search() {
+  var count = 0;
+  var text = $("input").value;
+  var trs = $('items-table').getElementsByTagName('tr');
+  [].forEach.call(trs, function(tr, index) { 
+    tr.getElementsByTagName("td")[1].textContent = '';
+    tr.setAttribute('state', '');
+    tr.setAttribute('videoId', '');
+    tr.setAttribute('duration', '');
+  });
+  for (var i = 0; i < history.length - 1; i++) {
+    var title = history[i][1];
+    if (text.length > 0){
+      if (commonWords(title, text) && count < trs.length) {
+        trs[count].getElementsByTagName("td")[1].textContent = title;
+        trs[count].setAttribute('videoId', history[i][0]);
+        count++;
+      }
+    }
+  }
+}
+
+$("input").addEventListener("keyup", function (e) {
+  var text = $("input").value;
+  if (text.length == 0) {
+    background.send('history-update');
+  } else {
+    search();
+  }
+}, false);
+
+$("search-div").addEventListener("keydown", function (e) {
+  if (e.keyCode === 13) {search();}
+}, false);
+
+
+$("search-td").addEventListener("click", function (e) {
+  search();
+}, false);
+
+
+
+
+

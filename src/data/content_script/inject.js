@@ -31,7 +31,7 @@ function $(id) {
   return $.cache[id];
 }
 
-// ******* Only for Google Chrome on HML5 player *******
+// ******* Only for Google Chrome on HTML5 Player *******
 if (window.navigator.vendor.match(/Google/)) {
   (function () {
     function inject() {
@@ -56,44 +56,26 @@ if (window.navigator.vendor.match(/Google/)) {
         }
       });
     }
-    var code = 'function iyplayer(e) {document.body.dispatchEvent(new CustomEvent("iyplayer-event", {detail: {state: e}}));}' +
-               '(' + inject + ')();';
+    var code = 'function iyplayer(e) {document.body.dispatchEvent(new CustomEvent("iyplayer-event", {detail: {state: e}}));}' + '(' + inject + ')();';
     var script = document.createElement("script");
     script.src = "data:text/plain," + code;
     document.body.appendChild(script);
   })();
 };
-function getVideoUrl() {
-  return window.location.href;
-}
-function getVideoId() {
-  return /watch\?v\=([^\&]*)/.exec(window.location.href || [null,null])[1];
-}
-function loadVideoById(id) {
-  window.location.replace("https://www.youtube.com/watch?v=" + id);
-}
-function loadVideoByUrl(url) {
-  window.location.replace(url);
-}
-function play() {
-  document.body.dispatchEvent(new CustomEvent("iplayer-send-command", {detail: {cmd: "play"}}));
-}
-function pause() {
-  document.body.dispatchEvent(new CustomEvent("iplayer-send-command", {detail: {cmd: "pause"}}));
-}
-function stop() {
-  document.body.dispatchEvent(new CustomEvent("iplayer-send-command", {detail: {cmd: "stop"}}));
-}
-function setVolume(v) {
-  document.body.dispatchEvent(new CustomEvent("iplayer-send-command", {detail: {cmd: "setVolume", volume: v}}));
-}
+function getVideoUrl() {return window.location.href;}
+function getVideoId() {return /watch\?v\=([^\&]*)/.exec(window.location.href || [null,null])[1];}
+function loadVideoById(id) {window.location.replace("https://www.youtube.com/watch?v=" + id);}
+function loadVideoByUrl(url) {window.location.replace(url);}
+function play() {document.body.dispatchEvent(new CustomEvent("iplayer-send-command", {detail: {cmd: "play"}}));}
+function pause() {document.body.dispatchEvent(new CustomEvent("iplayer-send-command", {detail: {cmd: "pause"}}));}
+function stop() {document.body.dispatchEvent(new CustomEvent("iplayer-send-command", {detail: {cmd: "stop"}}));}
+function setVolume(v) {document.body.dispatchEvent(new CustomEvent("iplayer-send-command", {detail: {cmd: "setVolume", volume: v}}));}
 // *******************
 
 var player;
 function youtube (callback, pointer) {
   function Player () {
-    // Accessing the JavaScript functions of the embedded player'
-    p = $('movie_player') || $('movie_player-flash') || {};
+    var p = $('movie_player') || $('movie_player-flash') || {};
     p = (typeof XPCNativeWrapper != "undefined") ? XPCNativeWrapper.unwrap (p) : p;
     var extend = {
       getAvailableQualityLevels: p.getAvailableQualityLevels,
@@ -129,14 +111,13 @@ function youtube (callback, pointer) {
     return extend;
   }
   player = new Player();
-  // if (player && player.getAvailableQualityLevels) {  
-  if (true){
+  if (true){ // if (player && player.getAvailableQualityLevels) {  
     callback.call(pointer);
   }
 }
 
 function init () {
-  youtube(function () {
+  youtube(function () {    
     background.send('request-inits');
     background.send('player-details', {
       id: player.getVideoId(),
