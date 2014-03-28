@@ -7,9 +7,9 @@ if (navigator.userAgent.toLowerCase().indexOf('firefox') !== -1) {
   background.receive = function (id, callback) {
     self.port.on(id, callback);
   }
-  background.receive("attached", function () {
-    if (window.frameElement === null) init();
-  });
+  //background.receive("attached", function () {
+  //  if (window.frameElement === null) init();
+  //});
 }
 else {
   background.send = function (id, data) {
@@ -22,7 +22,7 @@ else {
       }
     });
   }
-  init();
+  //init();
 }
 /********/
 function $(id) {
@@ -62,14 +62,14 @@ if (window.navigator.vendor.match(/Google/)) {
     document.body.appendChild(script);
   })();
 };
-function getVideoUrl() {return window.location.href;}
-function getVideoId() {return (/watch\?v\=([^\&]*)/.exec(window.location.href) || [null,null])[1];}
-function loadVideoById(id) {window.location.replace("https://www.youtube.com/watch?v=" + id);}
+function getVideoUrl()       {return window.location.href;}
+function getVideoId()        {return (/watch\?v\=([^\&]*)/.exec(window.location.href) || [null,null])[1];}
+function loadVideoById(id)   {window.location.replace("https://www.youtube.com/watch?v=" + id);}
 function loadVideoByUrl(url) {window.location.replace(url);}
-function play() {document.body.dispatchEvent(new CustomEvent("iplayer-send-command", {detail: {cmd: "play"}}));}
-function pause() {document.body.dispatchEvent(new CustomEvent("iplayer-send-command", {detail: {cmd: "pause"}}));}
-function stop() {document.body.dispatchEvent(new CustomEvent("iplayer-send-command", {detail: {cmd: "stop"}}));}
-function setVolume(v) {document.body.dispatchEvent(new CustomEvent("iplayer-send-command", {detail: {cmd: "setVolume", volume: v}}));}
+function play()              {document.body.dispatchEvent(new CustomEvent("iplayer-send-command", {detail: {cmd: "play"}}));}
+function pause()             {document.body.dispatchEvent(new CustomEvent("iplayer-send-command", {detail: {cmd: "pause"}}));}
+function stop()              {document.body.dispatchEvent(new CustomEvent("iplayer-send-command", {detail: {cmd: "stop"}}));}
+function setVolume(v)        {document.body.dispatchEvent(new CustomEvent("iplayer-send-command", {detail: {cmd: "setVolume", volume: v}}));}
 // *******************
 
 var player;
@@ -79,41 +79,18 @@ function youtube (callback, pointer) {
     p = (typeof XPCNativeWrapper != "undefined") ? XPCNativeWrapper.unwrap (p) : p;
     var extend = {
       getAvailableQualityLevels: p.getAvailableQualityLevels,
-      getDuration: function () {return p.getDuration ? p.getDuration() : 0},
-      getTitle: function () {
-        if (!window.content.document && !document) return "no title 1";
-        return [].reduce.call(
-          (window.content.document || document).getElementsByClassName("watch-title"), 
-          function (p, c) {return c.title;}, 
-          "no title 2"
-        );
-      },
-      getVideoUrl: function () {return p.getVideoUrl() || getVideoUrl()},
-      getVideoId: function () {if (p.getVideoUrl) {return (/[?&]v=([^&]+)/.exec(p.getVideoUrl()) || [null,null])[1];} else {return getVideoId();}},
-      loadVideoById: function (id) {if (p.loadVideoById) {p.loadVideoById(id);} else {loadVideoById();}},
-      loadVideoByUrl:function (url) {if (p.loadVideoByUrl) {p.loadVideoByUrl(url);} else {loadVideoByUrl(url);}},
+      getDuration:      function ()     {return p.getDuration ? p.getDuration() : 0},
+      getTitle:         function ()     {if (!window.content.document && !document) return "no title 1"; return [].reduce.call((window.content.document || document).getElementsByClassName("watch-title"), function (p, c) {return c.title;}, "no title 2");},
+      getVideoUrl:      function ()     {return p.getVideoUrl() || getVideoUrl()},
+      getVideoId:       function ()     {if (p.getVideoUrl) {return (/[?&]v=([^&]+)/.exec(p.getVideoUrl()) || [null,null])[1];} else {return getVideoId();}},
+      loadVideoById:    function (id)   {if (p.loadVideoById) {p.loadVideoById(id);} else {loadVideoById();}},
+      loadVideoByUrl:   function (url)  {if (p.loadVideoByUrl) {p.loadVideoByUrl(url);} else {loadVideoByUrl(url);}},
       addEventListener: function (a, b) {return p.addEventListener(a, b)},
-      play: function () {if (p.playVideo) {p.playVideo();} else {play();}},
-      pause: function () {if (p.pauseVideo) {p.pauseVideo();} else {pause();}},
-      setVolume: function (v) {
-        console.error("setVolume" in p, p.setVolume);
-        if ("setVolume" in p) {
-          p.setVolume(v);
-        } else {
-          setVolume(v);
-        }
-      },
-      stop: function () {
-        if (p.stopVideo) {
-          if (p.seekTo) p.seekTo(0);
-          p.stopVideo();
-          p.clearVideo();
-        } else {stop();}
-      },
-      quality: function (val) {
-        var levels = p.getAvailableQualityLevels();
-        p.setPlaybackQuality(levels.indexOf(val) != -1 ? val : levels[0])
-      }
+      play:             function ()     {if (p.playVideo) {p.playVideo();} else {play();}},
+      pause:            function ()     {if (p.pauseVideo) {p.pauseVideo();} else {pause();}},
+      setVolume:        function (v)    {if ("setVolume" in p) {p.setVolume(v);} else {setVolume(v);}},
+      stop:             function ()     {if (p.stopVideo) {if (p.seekTo) p.seekTo(0); p.stopVideo(); p.clearVideo();} else {stop();}},
+      quality:          function (val)  {var levels = p.getAvailableQualityLevels();p.setPlaybackQuality(levels.indexOf(val) != -1 ? val : levels[0])}
     }
     return extend;
   }
@@ -123,7 +100,7 @@ function youtube (callback, pointer) {
   }
 }
 
-function init () {
+function init() {
   youtube(function () {    
     background.send('request-inits');
     background.send('player-details', {
@@ -179,6 +156,7 @@ background.receive("request-inits", function (obj) {
 window.addEventListener("beforeunload", function() { 
   background.send('player-state-changed', {
     state: -1,
-    id: player.getVideoId()
+    id: player.getVideoId(),
+    tabId: tabId  // Send tabId only here
   });
 });

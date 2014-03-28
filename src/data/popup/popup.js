@@ -76,9 +76,12 @@ background.receive('history-update', function (obj) {
       switch (states[videoId]) {
       case 2:
         tr.setAttribute('state', 'pause');
+        $("input").value = '';
         break;
       case 1:
         tr.setAttribute('state', 'play');
+        $("input").value = title;
+        $("input").style.opacity = 0.5;
         break;
       default:
         tr.removeAttribute('state');
@@ -228,6 +231,11 @@ function search() {
 $("input").addEventListener("keyup", function (e) {
   var text = $("input").value;
   if (text.length == 0) {background.send('history-update');} else {search();}
+}, false);
+
+$("input").addEventListener("click", function (e) {
+  $("input").select();
+  $("input").focus();
 }, false);
 
 $("search-div").addEventListener("keydown", function (e) {

@@ -21,9 +21,9 @@ else {
   }
 }
 /********/
-var timeout = null;
-var player_available = false;
+
 var oldTitle;
+var timeout = null;
 
 function DOMlistener_Timeout() {
   if (timeout) {clearTimeout(timeout);}
@@ -31,22 +31,19 @@ function DOMlistener_Timeout() {
 }
 
 function DOMlistener() {
-  if (player_available) {return;}
   var totalTime = (document.querySelector(".ytp-time-duration") || {textContent: ""}).textContent;
-  var title = ((window.content.document || document).getElementsByClassName("watch-title") || [{title: ''}])[0].title;
-  console.error(0, oldTitle, title)
   var p = document.getElementById('movie_player') || document.getElementById('movie_player-flash');
   if (p && p.getDuration) {totalTime = p.getDuration() + "";}
-  if (totalTime.length > 0 && title && title != oldTitle) {
-    player_available = true;
-    oldTitle = title;
-  }
+  var watch_title = (window.content.document || document).getElementsByClassName("watch-title");
+  if (watch_title[0] == 'undefined' || !watch_title || !watch_title[0]) {watch_title = [{title: ''}];};
+  var title = watch_title[0].title;
   var player_id = (/v\=([^\&]*)/.exec(window.location.href) || [null,null])[1];
-  var referer_id = (/v\=([^\&]*)/.exec(window.history.state["spf-referer"])|| [null,null])[1];
-  if (player_available && (player_id != referer_id)) {
-    background.send('time_to_run', tabId);
+  var referer_id = (/v\=([^\&]*)/.exec(window.history.state["spf-referer"]) || [null,null])[1];
+  // Check (totalTime + title + player_id + referer_id) to see if player is available, then run init()
+  if (totalTime.length > 0 && title && (title != oldTitle) && (player_id != referer_id)) {
+    init(); // run init() in (inject.js)
+    oldTitle = title;
     document.removeEventListener("DOMSubtreeModified", DOMlistener_Timeout, false);
   }
 }
-
 document.addEventListener("DOMSubtreeModified", DOMlistener_Timeout, false);

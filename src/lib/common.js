@@ -53,13 +53,6 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, updatedTab) {
     });
   }
 });
-
-content_script.receive('time_to_run', function (tabId) {
-  chrome.tabs.executeScript(tabId, {
-    file: "data/content_script/inject.js",
-    runAt: "document_idle"
-  }, null);
-});
 // *************
 
 function readHistory() {
@@ -112,10 +105,7 @@ function updatePopup() {
 }
 
 content_script.receive("player-state-changed", function (obj) {
-
-  console.error("before load", obj)
-
-
+  if (obj.tabId) {tabURL[obj.tabId] = null;}
   states[obj.id] = obj.state;
   if (obj.state == 0) { // Video ended
     var loopsIndex = loops[obj.id];
@@ -147,7 +137,6 @@ content_script.receive("player-state-changed", function (obj) {
   updatePopup();
 });
 content_script.receive('player-details', function (data) {
-  console.error(data)
   saveToHistory(data);
 });
 content_script.receive("request-inits", function () {
