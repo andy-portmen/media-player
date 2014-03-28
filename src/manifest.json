@@ -3,7 +3,7 @@
   "version": "0.1.1",
   "manifest_version": 2,
   "short_name": "iyplayer",
-  "description": "Youtube™ Media Player.",
+  "description": "YouTube™ Media Player.",
   "author": "Andy Portmen",
   "permissions": [
     "contextMenus",
@@ -14,7 +14,7 @@
   "browser_action": {
     "default_icon": "data/icon16.png",
     "default_popup": "data/popup/popup.html",
-    "default_title": "Simple Translate"
+    "default_title": "YouTube™ Media Player"
   },
   "background": {
     "scripts": ["lib/task.js", "lib/chrome.js", "lib/common.js"]

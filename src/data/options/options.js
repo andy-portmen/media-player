@@ -9,13 +9,23 @@ function loadOptions() {
   readHistory().forEach(function (o, i) {
     if (i < parseInt(storage.read('numberHistoryItems'))) {
       var historyList = document.getElementById('historyList');
-      var dateSpan = document.createElement('span');
+      var span1 = document.createElement('span');
+      var span2 = document.createElement('span');
+      var a = document.createElement('a');
       var br = document.createElement('br');   
+      var url = 'https://www.youtube.com/watch?v=' + o[0];
       var title = o[1];
       var duration = (new Date(1970,1,1,0,0,o[2])).toTimeString().substr(0,8);  
-      dateSpan.textContent = ' (' + (i + 1) + ') ' + title + ' ------- ' + 'Duration: ' + duration;
-      historyList.appendChild(dateSpan);
-      historyList.appendChild(br);  
+      span1.textContent = ' (' + (i + 1) + ') ';
+      span2.textContent = ' (' + duration + ')';
+      a.appendChild(document.createTextNode(title));
+      a.title = title; a.href = url;
+      a.style.textDecoration = 'none';
+      a.style.color = '#797979';
+      historyList.appendChild(span1);
+      historyList.appendChild(a);
+      historyList.appendChild(span2);
+      historyList.appendChild(br);
     }
   });
 }
@@ -34,9 +44,10 @@ document.getElementById('saveAsHistory').addEventListener('click', function () {
   var data = 'sep=; \n';
   readHistory().forEach(function (o, i) {
     if (i < parseInt(storage.read('numberHistoryItems'))) {
+      var url = 'https://www.youtube.com/watch?v=' + o[0];
       var title = o[1];
       var duration = (new Date(1970,1,1,0,0,o[2])).toTimeString().substr(0,8);  
-      data += (i + 1) + '; ' + title + '; ' + duration + '\n';
+      data += (i + 1) + '; ' + title + '; ' + url + ';' + duration + '\n';
     }
   });
   var encodedUri = encodeURI(data);

@@ -40,16 +40,14 @@ var states = {}, loops = {}, tabURL = {};
 
 // ******** 1st inject "initial_inject.js" then run "init()" ********
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, updatedTab) {
-  if (tabURL[tabId] != updatedTab.url) {
+  if (tabURL[tabId] != updatedTab.url && updatedTab.url.indexOf('youtube.com') > -1) {
     states[(/[?&]v=([^&]+)/.exec(tabURL[tabId]) || [null,null])[1]] = -1;
     tabURL[tabId] = updatedTab.url;
-    chrome.tabs.executeScript(tabId, {
-        code: 'var tabId = ' + tabId + ';'
-    }, function() {
-        chrome.tabs.executeScript(tabId, {
-          file: "data/content_script/initial_inject.js",
-          runAt: "document_idle"
-        }, null);
+    chrome.tabs.executeScript(tabId, {code: 'var tabId = ' + tabId + ';'}, function() {
+      chrome.tabs.executeScript(tabId, {
+        file: "data/content_script/initial_inject.js",
+        runAt: "document_idle"
+      }, null);
     });
   }
 });
@@ -74,9 +72,7 @@ function saveToHistory(obj) {
   }
   if (!isHere) {
     lStorage_obj.push([obj.id, obj.title, obj.duration]);
-    if (lStorage_obj.length > numberHistoryItems) { // Only store up to the numberHistoryItems items
-        lStorage_obj.shift();
-    }
+    if (lStorage_obj.length > numberHistoryItems) {lStorage_obj.shift();}
     storage.write("history", JSON.stringify(lStorage_obj));
   }
 }
