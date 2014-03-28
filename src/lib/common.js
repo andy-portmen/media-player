@@ -40,8 +40,9 @@ var states = {}, loops = {}, tabURL = {};
 
 // ******** 1st inject "initial_inject.js" then "inject.js" ********
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, updatedTab) {
-  if (tabURL[updatedTab.id] != updatedTab.url) {
-    tabURL[updatedTab.id] = updatedTab.url;
+  if (tabURL[tabId] != updatedTab.url) {
+    states[(/[?&]v=([^&]+)/.exec(tabURL[tabId]) || [null,null])[1]] = -1;
+    tabURL[tabId] = updatedTab.url;
     chrome.tabs.executeScript(tabId, {
         code: 'var tabId = ' + tabId + ';'
     }, function() {
@@ -111,6 +112,10 @@ function updatePopup() {
 }
 
 content_script.receive("player-state-changed", function (obj) {
+
+  console.error("before load", obj)
+
+
   states[obj.id] = obj.state;
   if (obj.state == 0) { // Video ended
     var loopsIndex = loops[obj.id];
@@ -142,6 +147,7 @@ content_script.receive("player-state-changed", function (obj) {
   updatePopup();
 });
 content_script.receive('player-details', function (data) {
+  console.error(data)
   saveToHistory(data);
 });
 content_script.receive("request-inits", function () {
