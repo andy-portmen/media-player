@@ -40,11 +40,8 @@ function init () {
 function setVolume(vol) {
   var td = $("volume-td");
   for (var i = 0; i < 10; i++) {
-    if (i <= vol) {
-      td.children[i].setAttribute('name', 'selected');
-    } else {
-      td.children[i].removeAttribute('name');
-    }
+    if (i <= vol) {td.children[i].setAttribute('name', 'selected');} 
+    else {td.children[i].removeAttribute('name');}
   }
   background.send("popupVolumeIndex", vol);
 }
@@ -109,22 +106,13 @@ $('play-td').addEventListener('click', function () {
         break;
       }
     }
-    if (isPause) {
-      background.send("player-play", isPause);
-    }
+    if (isPause) {background.send("player-play", isPause);}
     else {
-      if (history.length) {
-        console.error(history[0][0])
-        background.send("player-play", history[0][0]);
-      }
-      else {
-        background.send("open-youtube");
-      }
+      if (history.length) {background.send("player-play", history[0][0]);}
+      else {background.send("open-youtube");}
     }
   } 
-  else {
-    background.send("player-pause", "all");
-  }
+  else {background.send("player-pause", "all");}
 }, false);
 
 $('next-td').addEventListener('click', function () {
@@ -239,11 +227,7 @@ function search() {
 
 $("input").addEventListener("keyup", function (e) {
   var text = $("input").value;
-  if (text.length == 0) {
-    background.send('history-update');
-  } else {
-    search();
-  }
+  if (text.length == 0) {background.send('history-update');} else {search();}
 }, false);
 
 $("search-div").addEventListener("keydown", function (e) {

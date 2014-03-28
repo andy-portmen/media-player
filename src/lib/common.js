@@ -142,7 +142,6 @@ content_script.receive("player-state-changed", function (obj) {
   updatePopup();
 });
 content_script.receive('player-details', function (data) {
-  console.error(data)
   saveToHistory(data);
 });
 content_script.receive("request-inits", function () {

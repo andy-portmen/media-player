@@ -121,7 +121,7 @@ function init () {
     background.send('request-inits');
     background.send('player-details', {
       id: player.getVideoId(),
-      title: player.getTitle(),
+      title: player.getTitle().toLowerCase(),
       duration: player.getDuration()
     });
     // inject new listener to unsafe window
