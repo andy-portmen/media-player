@@ -72,7 +72,7 @@ background.receive('history-update', function (obj) {
       var duration = history[q][2];
       duration = (new Date(1970,1,1,0,0,duration)).toTimeString().substr(0,8);  
       tr.getElementsByTagName("td")[1].textContent = title;
-      /* play (1), ended (0), paused (2), video cued /stop (5) or unstarted (-1)*/
+      /* play (1), ended (0), paused (2), loading (3), video cued /stop (5) or unstarted (-1)*/
       switch (states[videoId]) {
       case 2:
         tr.setAttribute('state', 'pause');

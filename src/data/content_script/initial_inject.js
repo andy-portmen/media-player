@@ -22,16 +22,15 @@ else {
 }
 /********/
 
-var oldTitle;
-var timeout = null;
+var oldTitle, timeout = null, isHTML5;
 
 function DOMlistener_Timeout() {
-  if (timeout) {clearTimeout(timeout);}
+  if (timeout) {clearTimeout(timeout);} 
   timeout = setTimeout(DOMlistener, 500);
 }
-
 function DOMlistener() {
   var totalTime = (document.querySelector(".ytp-time-duration") || {textContent: ""}).textContent;
+  isHTML5 = totalTime ? true : false;
   var p = document.getElementById('movie_player') || document.getElementById('movie_player-flash');
   if (p && p.getDuration) {totalTime = p.getDuration() + "";}
   var watch_title = (window.content.document || document).getElementsByClassName("watch-title");
@@ -41,7 +40,7 @@ function DOMlistener() {
   var referer_id = (/v\=([^\&]*)/.exec(window.history.state["spf-referer"]) || [null,null])[1];
   // Check (totalTime + title + player_id + referer_id) to see if player is available, then run init()
   if (totalTime.length > 0 && title && (title != oldTitle) && (player_id != referer_id)) {
-    init(); // run init() in (inject.js)
+    init(); // run init() in (inject.js) file
     oldTitle = title;
     document.removeEventListener("DOMSubtreeModified", DOMlistener_Timeout, false);
   }

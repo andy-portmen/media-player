@@ -35,6 +35,10 @@ else {
   Deferred = task.Deferred;
 }
 /********/
+if (storage.read("version") != version()) {
+  storage.write("version", version());
+  tab.open("http://add0n.com/media-player.html");
+}
 
 var states = {}, loops = {}, tabURL = {};
 
@@ -101,7 +105,7 @@ function updatePopup() {
 }
 
 content_script.receive("player-state-changed", function (obj) {
-  if (obj.tabId) {tabURL[obj.tabId] = null;}
+  if (obj.tabId) {tabURL[obj.tabId] = null;}  
   states[obj.id] = obj.state;
   if (obj.state == 0) { // Video ended
     var loopsIndex = loops[obj.id];
@@ -184,23 +188,17 @@ popup.receive("delete-track", function (videoId) {
 
 // Initialization
 if (!storage.read("history")) {
-  storage.write([]);
+  storage.write("history", "[]");
 }
 if (!storage.read("popupHistoryIndex")) {
-  storage.write('0');
+  storage.write("popupHistoryIndex", '0');
 }
 if (!storage.read("popupVolumeIndex")) {
-  storage.write('5');
+  storage.write("popupVolumeIndex", '5');
 }
 if (!storage.read("loop-all")) {
-  storage.write('0');
+  storage.write("loop-all", '0');
 }
 if (!storage.read("numberHistoryItems")) {
   storage.write("numberHistoryItems", '20');
 }
-
-
-
-
-
-

@@ -31,37 +31,6 @@ function $(id) {
   return $.cache[id];
 }
 
-// ******* Only for Google Chrome on HTML5 Player *******
-if (window.navigator.vendor.match(/Google/)) {
-  (function () {
-    function inject() {
-      var iyp = document.getElementById('movie_player') || document.getElementById('movie_player-flash');
-      iyp.addEventListener("onStateChange", "iyplayer");
-      document.body.addEventListener("iplayer-send-command", function (e) {
-        switch (e.detail.cmd) 
-        {
-        case "play":
-          iyp.playVideo();
-          break;
-        case "pause":
-          iyp.pauseVideo();
-          break;
-        case "stop":
-          iyp.stopVideo();
-          iyp.clearVideo();
-          break;
-        case "setVolume":
-          iyp.setVolume(e.detail.volume);
-          break;
-        }
-      });
-    }
-    var code = 'function iyplayer(e) {document.body.dispatchEvent(new CustomEvent("iyplayer-event", {detail: {state: e}}));}' + '(' + inject + ')();';
-    var script = document.createElement("script");
-    script.src = "data:text/plain," + code;
-    document.body.appendChild(script);
-  })();
-};
 function getVideoUrl()       {return window.location.href;}
 function getVideoId()        {return (/watch\?v\=([^\&]*)/.exec(window.location.href) || [null,null])[1];}
 function loadVideoById(id)   {window.location.replace("https://www.youtube.com/watch?v=" + id);}
@@ -70,100 +39,102 @@ function play()              {document.body.dispatchEvent(new CustomEvent("iplay
 function pause()             {document.body.dispatchEvent(new CustomEvent("iplayer-send-command", {detail: {cmd: "pause"}}));}
 function stop()              {document.body.dispatchEvent(new CustomEvent("iplayer-send-command", {detail: {cmd: "stop"}}));}
 function setVolume(v)        {document.body.dispatchEvent(new CustomEvent("iplayer-send-command", {detail: {cmd: "setVolume", volume: v}}));}
-// *******************
+function getTitle()          {return [].reduce.call(document.getElementsByClassName("watch-title"), function (p, c) {return c.title;}, "no title 2");}
+function getDuration()       {var t = [].reduce.call(document.getElementsByTagName("meta"), function (p,c) {return c.getAttribute("itemprop") == "duration" ? c.getAttribute("content") : null || p;}, null).substr(2).split(/[M,S]/); return parseInt(t[0]) * 60 + parseInt(t[1]);}
 
-function html5GetDuration() {
-  var str = (document.querySelector(".ytp-time-duration") || {textContent: ""}).textContent;
-  var p = str.split(':'), s = 0, m = 1;
-  while (p.length > 0) {s += m * parseInt(p.pop(), 10); m *= 60;}
-  return s;
+function script_inject(levels) {
+  function inject_0() {
+    document.body.addEventListener("iplayer-send-command", function (e) {
+      var iyp_1 = document.getElementById('movie_player') || document.getElementById('movie_player-flash');
+      switch (e.detail.cmd) 
+      {
+      case "play":
+        iyp_1.playVideo();
+        break;
+      case "pause":
+        iyp_1.pauseVideo();
+        break;
+      case "stop":
+        iyp_1.stopVideo();
+        iyp_1.clearVideo();
+        break;
+      case "setVolume":
+        iyp_1.setVolume(e.detail.volume);
+        break;
+      }
+    });
+  }
+  function inject_1() {
+    var iyp_2 = document.getElementById('movie_player') || document.getElementById('movie_player-flash');
+    iyp_2.addEventListener("onStateChange", "iyplayer");
+  }
+  function iyplayer(e) {
+    document.body.dispatchEvent(new CustomEvent("iyplayer-event", {detail: {state: e}}));
+  }
+  var code = ['(' + inject_0 + ')();', '(' + inject_1 + ')();', iyplayer + ''];
+  var script = document.createElement("script");
+  script.src = "data:text/plain," + levels.map(function(e) {return code[e]}).join('');
+  document.body.appendChild(script);
 }
 
-var player;
-function youtube (callback, pointer) {
-  function Player () {
-    var p = $('movie_player') || $('movie_player-flash') || {};
-    p = (typeof XPCNativeWrapper != "undefined") ? XPCNativeWrapper.unwrap (p) : p;
-    var extend = {
-      getAvailableQualityLevels: p.getAvailableQualityLevels,
-      getDuration:      function ()     {return p.getDuration ? p.getDuration() : html5GetDuration()},
-      getTitle:         function ()     {if (!window.content.document && !document) return "no title 1"; return [].reduce.call((window.content.document || document).getElementsByClassName("watch-title"), function (p, c) {return c.title;}, "no title 2");},
-      getVideoUrl:      function ()     {return p.getVideoUrl() || getVideoUrl()},
-      getVideoId:       function ()     {if (p.getVideoUrl) {return (/[?&]v=([^&]+)/.exec(p.getVideoUrl()) || [null,null])[1];} else {return getVideoId();}},
-      loadVideoById:    function (id)   {if (p.loadVideoById) {p.loadVideoById(id);} else {loadVideoById();}},
-      loadVideoByUrl:   function (url)  {if (p.loadVideoByUrl) {p.loadVideoByUrl(url);} else {loadVideoByUrl(url);}},
-      addEventListener: function (a, b) {return p.addEventListener(a, b)},
-      play:             function ()     {if (p.playVideo) {p.playVideo();} else {play();}},
-      pause:            function ()     {if (p.pauseVideo) {p.pauseVideo();} else {pause();}},
-      setVolume:        function (v)    {if ("setVolume" in p) {p.setVolume(v);} else {setVolume(v);}},
-      stop:             function ()     {if (p.stopVideo) {if (p.seekTo) p.seekTo(0); p.stopVideo(); p.clearVideo();} else {stop();}},
-      quality:          function (val)  {var levels = p.getAvailableQualityLevels();p.setPlaybackQuality(levels.indexOf(val) != -1 ? val : levels[0])}
-    }
-    return extend;
-  }
-  player = new Player();
-  if (true){ // if (player && player.getAvailableQualityLevels) {  
-    callback.call(pointer);
-  }
-}
+var isFirstInject = true, isHTML5Injected = false;
+
+/*
+ If the video player is Flash, 'player.addEventListener' 
+ needs to be injected on every init() but, for HTML5 player, 
+ only one 'player.addEventListener' injection is needed!
+*/
 
 function init() {
-  youtube(function () {    
-    background.send('request-inits');
-    background.send('player-details', {
-      id: player.getVideoId(),
-      title: player.getTitle().toLowerCase(),
-      duration: player.getDuration()
-    });
-    // inject new listener to unsafe window
-    if (typeof unsafeWindow != "undefined") { // Firefox
-      unsafeWindow.iyplayer = function (e) {
-        background.send('player-state-changed', {
-          state: e,
-          id: player.getVideoId()
-        });
-      }
-    }
-    else {  // ******* This is Only for Chrome Browser *******
-      document.body.addEventListener("iyplayer-event", function (e) {   
-        background.send('player-state-changed', {
-          state: e.detail.state,
-          id: player.getVideoId()
-        });
+  if (isFirstInject) {
+    isFirstInject = false;
+    script_inject([0, 2]);
+    document.body.addEventListener("iyplayer-event", function (e) {   
+      background.send('player-state-changed', {
+        state: e.detail.state,
+        id: getVideoId()
       });
-    }
+    });
+  }
+  if (isHTML5 && !isHTML5Injected) {script_inject([1]); isHTML5Injected = true;} // If the video is HTML5, then only one injection is needed!
+  if (!isHTML5) {script_inject([1]);} // If the video is Flash, multiple 'player.addEventListener' injection is needed!
+  background.send('request-inits');
+  background.send('player-details', {
+    id: getVideoId(),
+    title: getTitle().toLowerCase(),
+    duration: getDuration()
   });
 }
 
 background.receive("player-play", function (videoId) {
-  if (videoId == player.getVideoId()) {
-    player.play();
+  if (videoId == getVideoId()) {
+    play();
   }
 });
 background.receive("player-pause", function (videoId) {
-  if (videoId == player.getVideoId() || videoId == 'all') {
-    player.pause();
+  if (videoId == getVideoId() || videoId == 'all') {
+    pause();
   }
 });
 background.receive("player-stop", function () {
-  player.stop();
+  stop();
 });
 background.receive("player-new-id", function (obj) { 
-  if (obj.id == player.getVideoId()) {
-    window.location.replace("https://www.youtube.com/watch?v=" + obj.newID);
+  if (obj.id == getVideoId()) {
+    loadVideoById(obj.newID);
   }
 });
 background.receive("popupVolumeIndex", function (vol) {
-  player.setVolume(vol * 10 + 10);
+  setVolume(vol * 10 + 10);
 });
 background.receive("request-inits", function (obj) {
-  player.setVolume(obj.volume * 10 + 10);
+  setVolume(obj.volume * 10 + 10);
 });
 
 window.addEventListener("beforeunload", function() { 
   background.send('player-state-changed', {
     state: -1,
-    id: player.getVideoId(),
+    id: getVideoId(),
     tabId: tabId  // Send tabId only here
   });
 });
