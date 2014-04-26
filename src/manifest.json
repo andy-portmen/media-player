@@ -1,9 +1,9 @@
 {
-  "name": "Youtube™ Media Player",
-  "version": "0.1.1",
+  "name": "YouTube™ Media Player",
+  "version": "0.2.1",
   "manifest_version": 2,
   "short_name": "iyplayer",
-  "description": "YouTube™ Media Player.",
+  "description": "YouTube™ Media Player",
   "author": "Andy Portmen",
   "permissions": [
     "contextMenus",

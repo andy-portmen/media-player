@@ -40,7 +40,7 @@ if (storage.read("version") != version()) {
   tab.open("http://add0n.com/media-player.html");
 }
 
-var states = {}, loops = {}, tabURL = {};
+var states = {}, loops = {}, currentTimes = {}, qualityLevels = {}; tabURL = {};
 
 // ******** 1st inject "initial_inject.js" then run "init()" ********
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, updatedTab) {
@@ -86,11 +86,19 @@ function deleteHistory(videoId) {
   lStorage_obj = lStorage_obj.filter(function (a) { // Remove duplicate
       return !(a[0] == videoId);
   });
+  delete states[videoId];
+  delete loops[videoId];
+  delete currentTimes[videoId];
+  delete qualityLevels[videoId];
+  var trackQualityLevel = JSON.parse(storage.read("trackQualityLevel"));
+  delete trackQualityLevel[videoId];
+  storage.write("trackQualityLevel", JSON.stringify(trackQualityLevel));
   storage.write("history", JSON.stringify(lStorage_obj));
 }
 
 function clearHistory() {
   storage.write("history", "[]");
+  storage.write("trackQualityLevel", "{}");
 }
 
 function updatePopup() {
@@ -100,13 +108,25 @@ function updatePopup() {
     volumeIndex: parseInt(storage.read("popupVolumeIndex")),
     states: states,
     loops: loops,
-    loopIndex: parseInt(storage.read("loop-all"))
+    currentTimes: currentTimes,
+    loopIndex: parseInt(storage.read("loop-all")),
+    qualityLevels: qualityLevels
   });
+}
+
+function updatecontentScript(TQL, id) {
+  if (TQL[id]) {
+    content_script.send("playback-quality-update-common", {
+      id: id,
+      quality: TQL[id]
+    });
+  }
 }
 
 content_script.receive("player-state-changed", function (obj) {
   if (obj.tabId) {tabURL[obj.tabId] = null;}  
   states[obj.id] = obj.state;
+  currentTimes[obj.id] = obj.currentTime;
   if (obj.state == 0) { // Video ended
     var loopsIndex = loops[obj.id];
     var loopIndex = parseInt(storage.read('loop-all'));
@@ -134,6 +154,14 @@ content_script.receive("player-state-changed", function (obj) {
       }
     }
   }
+  // icon change 
+  if (obj.state == 1) {chrome.browserAction.setIcon({path:"data/icon16pause.png"});} 
+  else if (obj.state == 0) {chrome.browserAction.setIcon({path:"data/icon16stop.png"});}  
+  else if (obj.state == 2 || obj.state == 3) {chrome.browserAction.setIcon({path:"data/icon16play.png"});}
+  else {chrome.browserAction.setIcon({path:"data/icon16.png"});}
+  //
+  var trackQualityLevel = JSON.parse(storage.read("trackQualityLevel"));
+  updatecontentScript(trackQualityLevel, obj.id);
   updatePopup();
 });
 content_script.receive('player-details', function (data) {
@@ -144,8 +172,18 @@ content_script.receive("request-inits", function () {
     volume: parseInt(storage.read("popupVolumeIndex"))
   });
 });
+content_script.receive("iplayer-currentTime-content-script", function (e) {
+  currentTimes[e.id] = e.currentTime;
+  popup.send("iplayer-currentTime-common", currentTimes);
+});
+content_script.receive("iplayer-qualityLevels-content-script", function (e) {
+  qualityLevels[e.id] = e.qualityLevels;
+  updatePopup();
+});
+
 popup.receive('player-play', function (videoId) {
-  if (states[videoId] && states[videoId] != -1) {
+  var n = states[videoId];
+  if (Math.floor(n) === n && n != -1) {
     content_script.send('player-play', videoId);
   } else {
     tab.open('https://www.youtube.com/watch?v=' + videoId);
@@ -156,6 +194,12 @@ popup.receive('player-pause', function (videoId) {
 });
 popup.receive('player-stop', function () {
   content_script.send('player-stop');
+});
+popup.receive('player-seek', function (obj) {
+  content_script.send('player-seek', obj);
+});
+popup.receive('iplayer-currentTime', function () {
+  content_script.send('iplayer-currentTime');
 });
 popup.receive('open-youtube', function () {
   tab.open('https://www.youtube.com');
@@ -185,10 +229,23 @@ popup.receive("delete-track", function (videoId) {
   deleteHistory(videoId);
   updatePopup();
 });
+popup.receive("drag-update", function (data) {
+  storage.write("history", JSON.stringify(data));
+  updatePopup();
+});
+popup.receive("playback-quality-update", function (data) {
+  var trackQualityLevel = JSON.parse(storage.read("trackQualityLevel"));
+  trackQualityLevel[data.id] = data.quality;
+  storage.write("trackQualityLevel", JSON.stringify(trackQualityLevel));
+  updatecontentScript(trackQualityLevel, data.id);
+});
 
 // Initialization
 if (!storage.read("history")) {
   storage.write("history", "[]");
+}
+if (!storage.read("trackQualityLevel")) {
+  storage.write("trackQualityLevel", "{}"); // for hash
 }
 if (!storage.read("popupHistoryIndex")) {
   storage.write("popupHistoryIndex", '0');
