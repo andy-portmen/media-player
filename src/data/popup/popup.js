@@ -110,11 +110,13 @@ background.receive('history-update', function (obj) {
       var videoId = history[q][0];
       var title = history[q][1];
       var duration = history[q][2];
+      var addToFavorite = history[q][3] || '';
       var currentTime = currentTimes[videoId] || 0; 
       var X = Math.round((currentTime / duration) * 284) - 284;
       tr.getElementsByTagName("td")[2].textContent = title;
       tr.getElementsByTagName("td")[3].textContent = secondsToHms(currentTime) + ' / ' + secondsToHms(parseInt(duration));
       tr.getElementsByTagName("td")[2].style.backgroundPosition = X.toString() + 'px center';
+      tr.getElementsByTagName("td")[6].setAttribute('status', addToFavorite);
       var levels = qualityLevels[videoId];
       var select = tr.getElementsByTagName("select")[0]; select.innerHTML = '';      
       if (levels) {
@@ -161,6 +163,7 @@ background.receive('history-update', function (obj) {
       tr.getElementsByTagName("td")[2].style.backgroundPosition = '-286px center';
       tr.getElementsByTagName("td")[2].textContent = "";
       tr.getElementsByTagName("td")[3].textContent = "";
+      tr.getElementsByTagName("td")[6].setAttribute('status', '');
       tr.removeAttribute('state');
       tr.removeAttribute('videoId');
       tr.removeAttribute('duration');
@@ -254,15 +257,17 @@ $("items-table").addEventListener('mouseover', function (e) {
   if (target.localName === "td") {
     var current_tr = target.parentNode;
     var trs = $('items-table').getElementsByTagName('tr');
-    var flag_1 = current_tr.getElementsByTagName('td')[6] == target;
-    var flag_2 = current_tr.getElementsByTagName('td')[5] == target;
-    var flag_3 = current_tr.getElementsByTagName('td')[4] == target;
-    if (flag_1 || flag_2 || flag_3) { 
+    var flag_1 = current_tr.getElementsByTagName('td')[7] == target;
+    var flag_2 = current_tr.getElementsByTagName('td')[6] == target;
+    var flag_3 = current_tr.getElementsByTagName('td')[5] == target;
+    var flag_4 = current_tr.getElementsByTagName('td')[4] == target;
+    if (flag_1 || flag_2 || flag_3 || flag_4) { 
       [].forEach.call(trs, function(tr, index) { 
         tr.getElementsByTagName("td")[2].setAttribute('name', 'track-expand');
         tr.getElementsByTagName("td")[4].setAttribute('name', 'close-track-expand');
         tr.getElementsByTagName("td")[5].setAttribute('name', 'loop-track-expand');
-        tr.getElementsByTagName("td")[6].setAttribute('name', 'quality-td-expand');
+        tr.getElementsByTagName("td")[6].setAttribute('name', 'save-track-expand');
+        tr.getElementsByTagName("td")[7].setAttribute('name', 'quality-td-expand');
       });    
     }
     else {
@@ -270,7 +275,8 @@ $("items-table").addEventListener('mouseover', function (e) {
         tr.getElementsByTagName("td")[2].setAttribute('name', 'track');
         tr.getElementsByTagName("td")[4].setAttribute('name', 'close-track');
         tr.getElementsByTagName("td")[5].setAttribute('name', 'loop-track');
-        tr.getElementsByTagName("td")[6].setAttribute('name', 'quality-td');
+        tr.getElementsByTagName("td")[6].setAttribute('name', 'save-track');
+        tr.getElementsByTagName("td")[7].setAttribute('name', 'quality-td');
       }); 
     }
   }
@@ -292,7 +298,11 @@ $("items-table").addEventListener('click', function (e) {
         loopIndex: index
       });
     }
-    else if (tr.getElementsByTagName('td')[6] == target) {
+    else if (tr.getElementsByTagName('td')[6] == target) {   
+      if (target.getAttribute('status') == '')
+        background.send('save-track', tr.getAttribute('videoId'));
+      else
+        background.send('unsave-track', tr.getAttribute('videoId'));
     }
     else if (tr.getElementsByTagName('td')[2] == target) {
       if (tr.getAttribute('state') == 'play') {

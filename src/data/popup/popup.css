@@ -1,6 +1,6 @@
 body {
-  width: 455px;
-  height: 220px;
+  width: 452px;
+  height: 227px;
   overflow: hidden;
   margin: 0 5px 0 5px;
   background-color: #fff;
@@ -20,9 +20,10 @@ table {
   empty-cells: show;
   border-collapse: separate;
   border-spacing: 0 0;
+  border: 0;
 }
 tr td {
-  border: solid 1px rgba(108, 167, 128, 0.5);
+  border: solid 0px rgba(108, 167, 128, 0.5);
   border-radius: 3px;
 }
 select {
@@ -43,33 +44,37 @@ select:focus {
 .mac.webkit select {
   padding-left: 7px;
 }
-#settings-div, #controls-div, #playlist-div, #search-div{
+#controls-div, #playlist-div, #search-div{
   margin: 5px 0 0 0;
 }
+#search-div{
+  border: solid 1px rgba(0, 0, 0, 0.5);
+  border-radius: 2px;
+}
 #controls-table {
-  height: 37px;
+  height: 40px;
   border-spacing: 2px 0px;
-  margin-left: -2px;
-  margin-right: -2px;
+  margin: 0 -2px 0 -2px;
   cursor: pointer;
 }
 #controls-table tr td{
-  -webkit-transition: 200ms opacity; 
-  -moz-transition: 200ms opacity;
-  opacity: 0.65;
+  border: solid 1px rgba(0, 0, 0, 0.5);
+  -webkit-transition: 300ms opacity; 
+  -moz-transition: 300ms opacity;
+  opacity: 0.7;
 }
-#controls-table tr td:hover{
+#controls-table tr td:hover {
   -webkit-transition: 0ms opacity; 
   -moz-transition: 0ms opacity;
   opacity: 1.0;
 }
 #previous-td {
-  width: 65px; 
+  width: 60px; 
   border-radius: 2px;
   background: #F3F3F3 url(previous.png) no-repeat center center;
 }
 #play-td {
-  width: 86px; 
+  width: 105px; 
   border-radius: 2px;
 }
 #play-td[name='play'] {
@@ -79,12 +84,12 @@ select:focus {
   background: #F3F3F3 url(pause.png) no-repeat center center;
 }
 #next-td {
-  width: 65px; 
+  width: 60px; 
   border-radius: 2px;
   background: #F3F3F3 url(next.png) no-repeat center center;
 }
 #stop-td {
-  width: 65px; 
+  width: 60px; 
   border-radius: 2px;
   background: #F3F3F3 url(stop.png) no-repeat center center;
 }
@@ -95,13 +100,13 @@ select:focus {
 }
 #volume-td div {
   width: 4px;
-  border: solid 1px white;
+  border: solid 1px #F3F3F3;
   border-radius: 3px;
-  background-color: rgba(108, 167, 128, 1.0);
+  background-color: rgba(87, 155, 211, 1.0);
   display: inline-block;
   margin: 0 0 -6px -3px;
-  -webkit-transition: 200ms opacity; 
-  -moz-transition: 200ms opacity;
+  -webkit-transition: 300ms opacity; 
+  -moz-transition: 300ms opacity;
   opacity: 0.0;
 }
 #volume-td div:nth-child(1) {
@@ -132,7 +137,7 @@ select:focus {
 
 #loop-all-td,
 #loop-all-td[loopIndex='0']{
-  width: 65px; 
+  width: 60px; 
   border-radius: 2px;
   background: #F3F3F3 url(loop-all.png) no-repeat center center;
 }
@@ -158,11 +163,15 @@ select:focus {
   border: 0;
 }
 #items-table{
-  border-spacing: 0px 1px;
+  border-spacing: 0px 3px;
 }
 #items-table tr td{
-  border: solid 1px rgba(108, 167, 128, 0.13);
+  border: solid 0px rgba(108, 167, 128, 0.13);
   border-radius: 1px;
+  background-color: #F3F3F3 !important;
+  -webkit-transition: 300ms background-color; 
+  -moz-transition: 300ms background-color;
+  cursor: pointer;
 }
 #items-table td{
   height: 24px;
@@ -170,35 +179,31 @@ select:focus {
   white-space: nowrap;
   overflow: hidden;
 }
-#items-table tr td{
-  -webkit-transition: 200ms opacity; 
-  -moz-transition: 200ms opacity;
-  cursor: pointer;
-  opacity: 0.65;
-}
 #items-table tr td:hover{
-  -webkit-transition: 0ms opacity; 
-  -moz-transition: 0ms opacity;
-  opacity: 1.0;
+  -webkit-transition: 0ms background-color; 
+  -moz-transition: 0ms background-color;
+  background-color: #B5B5B5 !important;
 }
 #items-table tr td[name='drag']{
-  min-width: 20;
-  max-width: 20;
+  min-width: 22;
+  max-width: 22;
   background: url(drag.png) no-repeat center center;
 }
 #items-table tr td[name='play-icon']{
-  width: 16px;
+  width: 22px;
 }
 #items-table tr td[name='track']{
   min-width: 276px;
   max-width: 276px;
   padding: 0 3px 0 3px;
-  background: url(td-background.png) no-repeat -234px center;
-  opacity: 1.0; 
+  background: url(td-background.png) no-repeat -284px center;
+}
+#items-table tr td[name='track']:hover{
+  background-color: #F3F3F3 !important;
 }
 #items-table tr td[name='time']{
-  min-width: 73px;
-  max-width: 73px;
+  min-width: 80px;
+  max-width: 80px;
   padding: 0;
   text-align: center;
   text-overflow: ellipsis;
@@ -211,11 +216,11 @@ select:focus {
   border:0;
 }
 #items-table tr td[name='close-track-expand'] {
-  width: 16px;
-  background: #F3F3F3 url(close-track.png) no-repeat center center;
+  width: 20px;
+  background: url(close-track.png) no-repeat center center;
 }
 #items-table tr td[name='close-track-expand']:hover {
-  background: #E04343 url(close-track-white.png) no-repeat center center;
+  background: rgba(204, 24, 30, 1.0) url(close-track-white.png) no-repeat center center !important;
 }
 #items-table tr td[name='loop-track-expand'] {
   width: 28px;
@@ -225,33 +230,31 @@ select:focus {
   max-width: 226px;
   padding: 0 3px 0 3px;
   background: url(td-background-expand.png) no-repeat -234px center;
-  opacity: 1.0;
 }
 #items-table tr[state='play'] td{
-  opacity: 1.0;
 }
 #items-table tr[state='play']{
   font-weight: bold;
 }
 #items-table tr[state='stop'] td[name='track'] {
-  background: url(td-background.png) no-repeat -234px center;
+  background: url(td-background.png) no-repeat -284px center;
 }
 #items-table tr[state='end'] td[name='track'] {
+  background: url(td-background.png) no-repeat -284px center;
 }
 #items-table tr td[name='play-icon'] {
   background: url(play-track.png) no-repeat center center;
 }
 #items-table tr[state='play'] td[name='play-icon'] {
-  background: #F3F3F3 url(pause-track.png) no-repeat center center;
+  background: url(pause-track.png) no-repeat center center;
 }
 #items-table tr[state='pause'] td[name='play-icon'] {
   background: url(play-track.png) no-repeat center center;
 }
 #items-table tr[state='play'] td[name='time'] {
-  background: #F3F3F3;
 }
 #items-table tr[state='loading'] td[name='time'] {
-  background: #F5F5F5 url(loading.gif) no-repeat center center;
+  background: url(loading.gif) no-repeat center center;
 }
 #items-table tr td[name='loop-track']{
   width: 0;
@@ -261,55 +264,68 @@ select:focus {
 #items-table tr td[name='loop-track-expand'],
 #items-table tr td[name='loop-track-expand'][loopIndex='undefined'],
 #items-table tr td[name='loop-track-expand'][loopIndex='0'] {
-  background: #F3F3F3 url(loop-track.png) no-repeat center center;
+  background: url(loop-track.png) no-repeat center center;
 }
 #items-table tr td[name='loop-track-expand'][loopIndex='1'] {
-  background: #F3F3F3 url(loop-track-1.png) no-repeat center center;
+  background: url(loop-track-1.png) no-repeat center center;
 }
 #items-table tr td[name='loop-track-expand'][loopIndex='2'] {
-  background: #F3F3F3 url(loop-track-2.png) no-repeat center center;
+  background: url(loop-track-2.png) no-repeat center center;
 }
 #items-table tr td[name='loop-track-expand'][loopIndex='3'] {
-  background: #F3F3F3 url(loop-track-3.png) no-repeat center center;
+  background: url(loop-track-3.png) no-repeat center center;
 }
 #items-table tr td[name='loop-track-expand'][loopIndex='4'] {
-  background: #F3F3F3 url(loop-track-4.png) no-repeat center center;
+  background: url(loop-track-4.png) no-repeat center center;
 }
 #items-table tr td[name='loop-track-expand'][loopIndex='5'] {
-  background: #F3F3F3 url(loop-track-5.png) no-repeat center center;
+  background: url(loop-track-5.png) no-repeat center center;
 }
 #items-table tr td[name='loop-track-expand'][loopIndex='6'] {
-  background: #F3F3F3 url(loop-track-6.png) no-repeat center center;
+  background: url(loop-track-6.png) no-repeat center center;
 }
 #items-table tr td[name='quality-td-expand'] {
-  background: #F3F3F3;
 }
 #items-table tr td select[name='quality-select'][state='full']  {
   background: url(quality_full.png) no-repeat center center;
+}
+#items-table tr td[name='save-track']{
+  width: 0;
+  padding: 0;
+  border:0;
+}
+#items-table tr td[name='save-track-expand'] {
+  width: 28px;
+  background: url(save-track.png) no-repeat center center;
+}
+#items-table tr td[name='save-track-expand'][status='added'] {
+  width: 28px;
+  background: url(save-track-added.png) no-repeat center center;
 }
 #scroll-table{
   border-spacing: 0px 0px;
 }
 #scroll-table tr td{
-  border: solid 1px rgba(108, 167, 128, 0.5);
+  border: solid 1px rgba(0, 0, 0, 0.5);
   border-radius: 2px;
 }
 #scroll-table td{
-  height: 67px;
-  width: 20px;
+  height: 65px;
+  width: 14px;
+  padding: 0 1px 0 1px;
   cursor: pointer;
 }
 #scroll-up-td{
-  background: #F3F3F3 url(up.png) no-repeat center top;
-  -webkit-transition: 200ms opacity; 
-  -moz-transition: 200ms opacity;
-  opacity: 0.65;
+  background: url(up.png) no-repeat center top;
+  -webkit-transition: 300ms opacity; 
+  -moz-transition: 300ms opacity;
+  opacity: 0.7;
 }
 #scroll-down-td{
-  background: #F3F3F3 url(down.png) no-repeat center bottom;
-  -webkit-transition: 200ms opacity; 
-  -moz-transition: 200ms opacity;
-  opacity: 0.65;
+  background: url(down.png) no-repeat center bottom;
+  -webkit-transition: 300ms opacity; 
+  -moz-transition: 300ms opacity;
+  opacity: 0.7;
 }
 #scroll-up-td:hover{
   -webkit-transition: 0ms opacity; 
@@ -323,18 +339,6 @@ select:focus {
 }
 #search-table {
   height: 30px
-}
-#input-td { 
-  border-radius: 2px 0 0 2px;
-  border-right: 0;
-  -webkit-transition: 200ms opacity; 
-  -moz-transition: 200ms opacity;
-  opacity: 0.65;
-}
-#input-td:hover {
-  -webkit-transition: 0ms opacity; 
-  -moz-transition: 0ms opacity;
-  opacity: 1.0;
 }
 #input { 
   border-width: 0;
@@ -350,14 +354,13 @@ select:focus {
 }
 #search-td {
   width: 32px; 
-  background: #F3F3F3 url('search.png') no-repeat center center;
-  border-radius: 0 2px 2px 0;
+  background: url('search.png') no-repeat center center;
   -webkit-user-select: none;
   -moz-user-select: none;
   cursor: pointer;
   -webkit-transition: 200ms opacity; 
   -moz-transition: 200ms opacity;
-  opacity: 0.65;
+  opacity: 0.7;
 }
 #search-td:hover {
   -webkit-transition: 0ms opacity; 

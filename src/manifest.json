@@ -1,12 +1,11 @@
 {
-  "name": "YouTube™ Media Player",
-  "version": "0.2.1",
+  "name": "Media Player for YouTube™",
+  "version": "0.2.5",
   "manifest_version": 2,
   "short_name": "iyplayer",
-  "description": "YouTube™ Media Player",
+  "description": "Media Player for YouTube™",
   "author": "Andy Portmen",
   "permissions": [
-    "contextMenus",
     "storage",
     "tabs", 
     "<all_urls>"
@@ -14,15 +13,16 @@
   "browser_action": {
     "default_icon": "data/icon16.png",
     "default_popup": "data/popup/popup.html",
-    "default_title": "YouTube™ Media Player"
+    "default_title": "Media Player for YouTube™"
   },
   "background": {
     "scripts": ["lib/task.js", "lib/chrome.js", "lib/common.js"]
   },
   "content_scripts": [{
     "matches": ["http://www.youtube.com/*", "https://www.youtube.com/*"],
-    "js": ["data/content_script/inject.js"],
-    "run_at": "document_idle"
+    "exclude_matches": ["http://www.youtube.com/embed/*", "https://www.youtube.com/embed/*"],  
+    "js": ["data/content_script/inject.js"], 
+    "run_at": "document_start"
   }],
   "options_page": "data/options/options.html",
   "icons": {

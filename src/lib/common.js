@@ -37,25 +37,10 @@ else {
 /********/
 if (storage.read("version") != version()) {
   storage.write("version", version());
-  tab.open("http://add0n.com/media-player.html");
+  tab.open("http://add0n.com/media-player.html?version=" + version());
 }
 
 var states = {}, loops = {}, currentTimes = {}, qualityLevels = {}; tabURL = {};
-
-// ******** 1st inject "initial_inject.js" then run "init()" ********
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, updatedTab) {
-  if (tabURL[tabId] != updatedTab.url && updatedTab.url.indexOf('youtube.com') > -1) {
-    states[(/[?&]v=([^&]+)/.exec(tabURL[tabId]) || [null,null])[1]] = -1;
-    tabURL[tabId] = updatedTab.url;
-    chrome.tabs.executeScript(tabId, {code: 'var tabId = ' + tabId + ';'}, function() {
-      chrome.tabs.executeScript(tabId, {
-        file: "data/content_script/initial_inject.js",
-        runAt: "document_idle"
-      }, null);
-    });
-  }
-});
-// *************
 
 function readHistory() {
   var lStorage = storage.read("history");
@@ -76,29 +61,48 @@ function saveToHistory(obj) {
   }
   if (!isHere) {
     lStorage_obj.push([obj.id, obj.title, obj.duration]);
-    if (lStorage_obj.length > numberHistoryItems) {lStorage_obj.shift();}
+    if (lStorage_obj.length > numberHistoryItems) lStorage_obj.shift();
     storage.write("history", JSON.stringify(lStorage_obj));
   }
 }
 
 function deleteHistory(videoId) {
   var lStorage_obj = readHistory();
-  lStorage_obj = lStorage_obj.filter(function (a) { // Remove duplicate
-      return !(a[0] == videoId);
+  lStorage_obj = lStorage_obj.filter(function (a) {
+    if (a[0] == videoId && !a[3]) {
+      delete states[videoId];
+      delete loops[videoId];
+      delete currentTimes[videoId];
+      delete qualityLevels[videoId];
+      var trackQualityLevel = JSON.parse(storage.read("trackQualityLevel"));
+      delete trackQualityLevel[videoId];
+      storage.write("trackQualityLevel", JSON.stringify(trackQualityLevel));
+      return false; 
+    }
+    else 
+      return true;
   });
-  delete states[videoId];
-  delete loops[videoId];
-  delete currentTimes[videoId];
-  delete qualityLevels[videoId];
-  var trackQualityLevel = JSON.parse(storage.read("trackQualityLevel"));
-  delete trackQualityLevel[videoId];
-  storage.write("trackQualityLevel", JSON.stringify(trackQualityLevel));
   storage.write("history", JSON.stringify(lStorage_obj));
 }
 
 function clearHistory() {
-  storage.write("history", "[]");
-  storage.write("trackQualityLevel", "{}");
+  var lStorage_obj = readHistory();
+  lStorage_obj = lStorage_obj.filter(function (a) {
+    if (!a[3]) {
+      var videoId = a[0];
+      delete states[videoId];
+      delete loops[videoId];
+      delete currentTimes[videoId];
+      delete qualityLevels[videoId];
+      var trackQualityLevel = JSON.parse(storage.read("trackQualityLevel"));
+      delete trackQualityLevel[videoId];
+      storage.write("trackQualityLevel", JSON.stringify(trackQualityLevel));
+      return false; 
+    }
+    else 
+      return true;
+  });
+  storage.write("history", JSON.stringify(lStorage_obj));
 }
 
 function updatePopup() {
@@ -158,7 +162,7 @@ content_script.receive("player-state-changed", function (obj) {
   if (obj.state == 1) {chrome.browserAction.setIcon({path:"data/icon16pause.png"});} 
   else if (obj.state == 0) {chrome.browserAction.setIcon({path:"data/icon16stop.png"});}  
   else if (obj.state == 2 || obj.state == 3) {chrome.browserAction.setIcon({path:"data/icon16play.png"});}
-  else {chrome.browserAction.setIcon({path:"data/icon16.png"});}
+  else {chrome.browserAction.setIcon({path:"data/icon32.png"});}
   //
   var trackQualityLevel = JSON.parse(storage.read("trackQualityLevel"));
   updatecontentScript(trackQualityLevel, obj.id);
@@ -227,6 +231,30 @@ popup.receive("popupVolumeIndex", function (volumeIndex) {
 });
 popup.receive("delete-track", function (videoId) {
   deleteHistory(videoId);
+  updatePopup();
+});
+popup.receive("save-track", function (videoId) {
+  var lStorage = storage.read("history");
+  lStorage_obj = JSON.parse(lStorage); // lStorage to Hash Array
+  for (var i = 0; i < lStorage_obj.length; i++) {
+    if (videoId == lStorage_obj[i][0]) {
+      lStorage_obj[i][3] = 'added';
+      storage.write("history", JSON.stringify(lStorage_obj));
+      break;
+    }
+  }
+  updatePopup();
+});
+popup.receive("unsave-track", function (videoId) {
+  var lStorage = storage.read("history");
+  lStorage_obj = JSON.parse(lStorage); // lStorage to Hash Array
+  for (var i = 0; i < lStorage_obj.length; i++) {
+    if (videoId == lStorage_obj[i][0]) {
+      lStorage_obj[i][3] = '';
+      storage.write("history", JSON.stringify(lStorage_obj));
+      break;
+    }
+  }
   updatePopup();
 });
 popup.receive("drag-update", function (data) {

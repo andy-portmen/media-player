@@ -58,11 +58,13 @@ document.getElementById('saveAsHistory').addEventListener('click', function () {
 }, false);
 document.getElementById('clearHistory').addEventListener('click', function () {
   clearOptionsHistory();
+  loadOptions();
 }, false);
 document.getElementById('numberHistoryItems').addEventListener('change', function (e) {
   storage.write('numberHistoryItems', e.target.value);
   loadOptions();
 }, false);
+
 $(window).load(function() {
   loadOptions();
   $('#Settings_Tabs_Interface').addClass('active-tab');
