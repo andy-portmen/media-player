@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+   <head>
+    <link href="options.css" rel="stylesheet" type="text/css">
+    <title>Settings</title>
+  </head>
+  <body>
+    <div id="main-wrap">
+      <div class="top-wrap">
+        <div class="inside-layout">
+          <div class="page-action">
+            <div class="inside-pa-layout">
+              <div class="tabber-wrap">
+                <div class="tabber-inside-layout">
+                  <div class="settings-tab" id="Settings_Tabs_Interface">History</div>
+                  <div class="tab-delimiter"></div>
+                  <div class="settings-tab" id="Settings_Tabs_General">About</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="content-wrap">
+        <div class="tab-contents tc-1" id="tc-1" style="display: block;">
+          <div class="settings-block">
+            <div class="headline">Clear YouTube History</div>
+            <div class="description">
+              <center>
+                <button id="clearHistory" class="flat-button">  
+                  Clear History
+                </button>
+              </center>
+            </div>
+          </div>
+          <div class="settings-block">
+            <div class="headline">Save YouTube History to (.CSV) File</div>
+            <div class="description">
+              <center>
+                <button id="saveAsHistory" class="flat-button">
+                  Save as .CSV
+                </button>
+              </center>
+            </div>
+          </div>
+          <div class="settings-block">
+            <center><label class="description">Number of History Items: </label>
+            <input type="number" id="numberHistoryItems"></center>
+          </div>
+          <div class="settings-block">
+            <div class="headline">YouTube History</div>
+            <div class="description" id="historyList"></div>
+          </div>
+        </div>
+        <div class="tab-contents tc-2" id="tc-2" style="display: none;">
+          <div class="settings-block">
+            <div class="headline">In Short</div>
+            <div class="description">
+              <a href="http://add0n.com/youtube-media-player.html">YouTube Media Player</a>
+              is a powerful player for YouTube. 
+            </div>
+          </div>
+          <div class="settings-block">
+            <div class="headline">Features</div>
+            <div class="description">
+              - Store YouTube visited pages to history automatically. <br/>
+              - Set loop-index for individual tracks. <br/>
+              - Store YouTube history to excel (.csv) file. <br/>
+              - Set loop-index for all tracks. <br/>
+              - Compatible with Flash and HTML5 YouTube players. <br/>
+              - Delete disliked/unwanted tracks. <br/>
+              - Search history and play any video from popup. <br/>
+            </div>
+          </div>
+          <div class="settings-block">
+            <div class="headline">Some useful notes</div>
+            <div class="description">
+              [1] Before using the extension, please make sure to adjust your settings. <br/>
+              [2] All changes in the settings page are auto saved. <br/>
+              [3] To activate the extension after installation, please reload all your existing pages. <br/>
+              [4] To help a humble monetization campaign of the application please visit <a href="http://add0n.com/youtube-media-player.html">YouTube Media Player</a> and use the Donation button.
+            </div>
+          </div>
+        </div>
+       </div>     
+    </div>
+    <script type="text/javascript" src="options.js"></script>
+  </body>
+</html>

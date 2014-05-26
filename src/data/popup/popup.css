@@ -185,8 +185,9 @@ select:focus {
   background-color: #B5B5B5 !important;
 }
 #items-table tr td[name='drag']{
-  min-width: 22;
-  max-width: 22;
+  width: 22px;
+  min-width: 22px;
+  max-width: 22px;
   background: url(drag.png) no-repeat center center;
 }
 #items-table tr td[name='play-icon']{

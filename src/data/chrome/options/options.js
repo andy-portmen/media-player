@@ -3,6 +3,10 @@ var readHistory = chrome.extension.getBackgroundPage().readHistory;
 var clearStorageHistory = chrome.extension.getBackgroundPage().clearHistory;
 // ------------------------------------------------------------------
 
+function $ (id) {
+  return document.getElementById(id);
+};
+
 function loadOptions() {
   clearOptionsHistoryList();
   document.getElementById('numberHistoryItems').value = storage.read('numberHistoryItems');
@@ -19,9 +23,12 @@ function loadOptions() {
       span1.textContent = ' (' + (i + 1) + ') ';
       span2.textContent = ' (' + duration + ')';
       a.appendChild(document.createTextNode(title));
-      a.title = title; a.href = url;
+      a.dir = "auto";
+      a.title = title; 
+      a.href = url;
       a.style.textDecoration = 'none';
       a.style.color = '#797979';
+      if (o[3] == 'added') a.style.fontWeight = 'bold';
       historyList.appendChild(span1);
       historyList.appendChild(a);
       historyList.appendChild(span2);
@@ -65,26 +72,21 @@ document.getElementById('numberHistoryItems').addEventListener('change', functio
   loadOptions();
 }, false);
 
-$(window).load(function() {
+window.onload = function() {
   loadOptions();
-  $('#Settings_Tabs_Interface').addClass('active-tab');
-  $('#Settings_Tabs_General').removeClass('active-tab');
-  $('#tc-1').css('display', 'block');
-  $('#tc-2').css('display', 'none');
-  $(function() {
-    $('#Settings_Tabs_Interface').click(function() {
-      loadOptions();
-      $('#Settings_Tabs_Interface').addClass('active-tab');
-      $('#Settings_Tabs_General').removeClass('active-tab');
-      $('#tc-1').css('display', 'block');
-      $('#tc-2').css('display', 'none');
-    });
-    $('#Settings_Tabs_General').click(function() {
-      loadOptions();
-      $('#Settings_Tabs_Interface').removeClass('active-tab');
-      $('#Settings_Tabs_General').addClass('active-tab');
-      $('#tc-1').css('display', 'none');
-      $('#tc-2').css('display', 'block');
-    });
-  });
-});
+  $('Settings_Tabs_Interface').setAttribute('active', 'true');
+  $('Settings_Tabs_Interface').addEventListener('click', function() {
+    $('Settings_Tabs_Interface').setAttribute('active', 'true');
+    $('Settings_Tabs_General').removeAttribute('active');
+    $('tc-1').style.display = 'block';
+    $('tc-2').style.display = 'none';
+    loadOptions();
+  }, false);
+  $('Settings_Tabs_General').addEventListener('click', function() {
+    $('Settings_Tabs_Interface').removeAttribute('active');
+    $('Settings_Tabs_General').setAttribute('active', 'true');
+    $('tc-1').style.display = 'none';
+    $('tc-2').style.display = 'block';
+    loadOptions();
+  }, false);
+};

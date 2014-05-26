@@ -1,6 +1,6 @@
-﻿/********/
 var background = {};
-if (typeof chrome !== 'undefined') {
+/**** wrapper (start) ****/
+if (typeof chrome !== 'undefined') {  // Chrome
   background.send = function (id, data) {
     chrome.extension.sendRequest({method: id, data: data});
   }
@@ -15,18 +15,54 @@ if (typeof chrome !== 'undefined') {
     init();
   }, 100);
 }
-else {
+else if (typeof safari !== 'undefined') { // Safari
+  background = (function () {
+    var callbacks = {};
+    return {
+      send: function (id, data) {
+        safari.extension.globalPage.contentWindow.popup.dispatchMessage(id, data);
+      },
+      receive: function (id, callback) {
+        callbacks[id] = callback;
+      },
+      dispatchMessage: function (id, data) {
+        if (callbacks[id]) {
+          callbacks[id](data);
+        }
+      }
+    }
+  })();
+  var doResize = function () {
+    safari.self.width = document.body.getBoundingClientRect().width + 10;
+    safari.self.height = document.body.getBoundingClientRect().height + 10;
+  }
+  window.addEventListener("resize", doResize, false);
+  safari.application.addEventListener("popover", function (){
+    window.setTimeout(function () {
+      init();
+    }, 100);
+  }, false);
+}
+else {  // Firefox
   background.send = function (id, data) {
     self.port.emit(id, data);
   }
   background.receive = function (id, callback) {
     self.port.on(id, callback);
   }
+  var doResize = function () {
+    self.port.emit("resize", {
+      w: document.body.getBoundingClientRect().width,
+      h: document.body.getBoundingClientRect().height
+    });
+  }
+  window.addEventListener("resize", doResize, false);
   self.port.on("show", function () {
     init();
   });
 }
-/********/
+/**** wrapper (end) ****/
+
 var states, currentTimes, history, historyIndex, timeout = null;
 
 function $ (id) {

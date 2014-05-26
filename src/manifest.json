@@ -16,15 +16,15 @@
     "default_title": "Media Player for YouTube™"
   },
   "background": {
-    "scripts": ["lib/task.js", "lib/chrome.js", "lib/common.js"]
+    "scripts": ["lib/chrome/task.js", "lib/chrome/chrome.js", "lib/common.js"]
   },
   "content_scripts": [{
     "matches": ["http://www.youtube.com/*", "https://www.youtube.com/*"],
     "exclude_matches": ["http://www.youtube.com/embed/*", "https://www.youtube.com/embed/*"],  
-    "js": ["data/content_script/inject.js"], 
+    "js": ["data/content_script/inject.js", "data/content_script/chrome_inject.js"], 
     "run_at": "document_start"
   }],
-  "options_page": "data/options/options.html",
+  "options_page": "data/chrome/options/options.html",
   "icons": {
     "16": "data/icon16.png",
     "48": "data/icon48.png",

@@ -1,0 +1,10 @@
+{
+  "name": "iyplayer",
+  "version": "0.2.5",
+  "title": "Media Player for YouTube™",
+  "id": "jid1-dgnICqQgv2AUZw",
+  "description": "Media Player for YouTube™",
+  "author": "Andy Portmen",
+  "license": "MPL 2.0",
+  "main": "common"
+}

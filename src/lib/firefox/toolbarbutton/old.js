@@ -1,27 +1,13 @@
 const NS_XUL = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 
-const winUtils = require("sdk/deprecated/window-utils");
+var prefs    = require("sdk/simple-prefs").prefs,
+    winUtils = require("sdk/deprecated/window-utils"),
+    utils    = require('sdk/window/utils');
+
 const browserURL = "chrome://browser/content/browser.xul";
 
-const listen = function listen(window, node, event, func, capture) {
-  // Default to use capture
-  if (capture == null)
-    capture = true;
-
-  node.addEventListener(event, func, capture);
-  function undoListen() {
-    node.removeEventListener(event, func, capture);
-  }
-
-  // Undo the listener on unload and provide a way to undo everything
-  let undoUnload = unload(undoListen, window);
-  return function() {
-    undoListen();
-    undoUnload();
-  };
-}
-
-var Unloader = exports.Unloader = function Unloader() {
+/** unload+.js [start] **/
+var unload = (function () {
   var unloaders = [];
 
   function unloadersUnlaod() {
@@ -73,21 +59,32 @@ var Unloader = exports.Unloader = function Unloader() {
       return remover;
     }
   };
+})().unload;
+/** unload+.js [end] **/
+/** listen.js [start] **/
+var listen = function listen(window, node, event, func, capture) {
+  // Default to use capture
+  if (capture == null)
+    capture = true;
+
+  node.addEventListener(event, func, capture);
+  function undoListen() {
+    node.removeEventListener(event, func, capture);
+  }
+
+  // Undo the listener on unload and provide a way to undo everything
+  let undoUnload = unload(undoListen, window);
+  return function() {
+    undoListen();
+    undoUnload();
+  };
 }
-
-const unload = (Unloader()).unload;
-
-
-
-
-
-
-
+/** listen.js [end] **/
 
 exports.ToolbarButton = function ToolbarButton(options) {
   var unloaders = [],
-      toolbarID = "",
-      insertbefore = "",
+      toolbarID = prefs.toolbarID || "",
+      insertbefore = prefs.nextSibling || "",
       destroyed = false,
       destoryFuncs = [];
 
@@ -95,6 +92,7 @@ exports.ToolbarButton = function ToolbarButton(options) {
     onTrack: function (window) {
       if ("chrome://browser/content/browser.xul" != window.location || destroyed)
         return;
+
       let doc = window.document;
       let $ = function(id) doc.getElementById(id);
       options.tooltiptext = options.tooltiptext || '';
@@ -102,23 +100,36 @@ exports.ToolbarButton = function ToolbarButton(options) {
       let tbb = doc.createElementNS(NS_XUL, "toolbarbutton");
       tbb.setAttribute("id", options.id);
       tbb.setAttribute("value", "");
-      tbb.setAttribute("orient", "horizontal");
       tbb.setAttribute("class", "toolbarbutton-1 chromeclass-toolbar-additional");
       tbb.setAttribute("label", options.label);
-      tbb.setAttribute("tooltiptext", options.tooltiptext);
+      tbb.setAttribute('tooltiptext', options.tooltiptext);
       tbb.addEventListener("command", function(e) {
         if (e.ctrlKey) return;
         if (e.originalTarget.localName == "menu" || e.originalTarget.localName == "menuitem") return;
 
         if (options.onCommand)
-          options.onCommand(e);
+          options.onCommand(e, tbb);
 
         if (options.panel) {
           options.panel.show(tbb);
         }
       }, true);
       if (options.onClick) {
-          tbb.addEventListener("click", options.onClick, true); 
+        tbb.addEventListener("click", function (e) {
+          options.onClick(e, tbb);
+        }, true);
+      }
+      if (options.panel) {
+        tbb.addEventListener("contextmenu", function (e) {
+          e.stopPropagation();
+          e.preventDefault();
+          try {
+            options.panel.show(tbb);
+          }
+          catch (e) {
+            options.panel.show(null, tbb);
+          }
+        }, true);
       }
       if (options.onContext) {
         let menupopup = doc.createElementNS(NS_XUL, "menupopup");
@@ -164,18 +175,19 @@ exports.ToolbarButton = function ToolbarButton(options) {
               if (b4) break;
             }
           }
+          if (!b4) b4 = $("home-button");
         }
 
         tb.insertItem(options.id, b4, null, false);
       }
       
-      if (setBadge.value) setBadge ({value: setBadge.value});
-      if (setType.value) setType({value: setType.value});
-
       var saveTBNodeInfo = function(e) {
         toolbarID = tbb.parentNode.getAttribute("id") || "";
         insertbefore = (tbb.nextSibling || "")
             && tbb.nextSibling.getAttribute("id").replace(/^wrapper-/i, "");
+
+        prefs.nextSibling = insertbefore;
+        prefs.toolbarID = toolbarID;  
       };
 
       window.addEventListener("aftercustomization", saveTBNodeInfo, false);
@@ -194,28 +206,33 @@ exports.ToolbarButton = function ToolbarButton(options) {
     onUntrack: function (window) {}
   };
   var tracker = winUtils.WindowTracker(delegate);
-
-  function setType(aOptions) {
-    setType.value = aOptions.value;
   
+  function setProgress(aOptions) {
     getToolbarButtons(function(tbb) {
-      tbb.setAttribute("type", aOptions.value);
-    }, options.id);
-    return aOptions.value;
-  }
-  function setBadge (aOptions) {
-    setBadge.value = aOptions.value;
-  
-    getToolbarButtons(function(tbb) {
-      if ((aOptions.value + "").length > 4) {
-        aOptions.value = "9999"
+      if (!aOptions.progress) {
+        tbb.removeAttribute("progress");
       }
-      tbb.setAttribute("value", aOptions.value ? aOptions.value : "");
-      tbb.setAttribute("length", aOptions.value ? (aOptions.value + "").length : 0);
+      else {
+        tbb.setAttribute("progress", (aOptions.progress * 8).toFixed(0));
+      }
     }, options.id);
+    return aOptions.progress;
+  }
+  function setSaturate(aOptions) {
+    getToolbarButtons(function(tbb) {
+      if (!aOptions.value) {
+        tbb.setAttribute("type", "gray");
+      }
+      else {
+        tbb.removeAttribute("type");
+      }
+    }, options.id);
+    options.saturate = aOptions.value;
     return aOptions.value;
   }
-
+  
+  
+  
   return {
     destroy: function() {
       if (destroyed) return;
@@ -236,11 +253,16 @@ exports.ToolbarButton = function ToolbarButton(options) {
       if (destroyed) return;
 
       // record the new position for future windows
-      toolbarID = pos.toolbarID;
-      insertbefore = pos.insertbefore;
+      toolbarID = prefs.toolbarID || pos.toolbarID;
+      insertbefore = prefs.nextSibling || pos.insertbefore;
 
+      if (toolbarID == "BrowserToolbarPalette") {
+        toolbarID = "nav-bar";
+        insertbefore = "home-button";
+      }
+      
       // change the current position for open windows
-      for each (var window in winUtils.windowIterator()) {
+      for each (var window in utils.windows()) {
         if (browserURL != window.location) return;
 
         let doc = window.document;
@@ -251,8 +273,6 @@ exports.ToolbarButton = function ToolbarButton(options) {
 
         var tb = $(toolbarID);
         var b4 = $(insertbefore);
-
-        // TODO: if b4 dne, but insertbefore is in currentset, then find toolbar to right
 
         if (tb) {
           tb.insertItem(options.id, b4, null, false);
@@ -269,8 +289,9 @@ exports.ToolbarButton = function ToolbarButton(options) {
       }, options.id);
       return value;
     },
-    set type(value) setType({value: value}),
-    set badge(value) setBadge({value: value}),
+    set progress(value) setProgress({progress: value}),
+    set saturate(value) setSaturate({value: value}),
+    get saturate() options.saturate,
     get tooltiptext() options.tooltiptext,
     set tooltiptext(value) {
       options.tooltiptext = value;
@@ -279,14 +300,14 @@ exports.ToolbarButton = function ToolbarButton(options) {
       }, options.id);
     },
     get object () {
-      return winUtils.activeBrowserWindow.document.getElementById(options.id);
+      return utils.getMostRecentBrowserWindow().document.getElementById(options.id);
     }
   };
 };
 
 function getToolbarButtons(callback, id) {
   let buttons = [];
-  for each (var window in winUtils.windowIterator()) {
+  for each (var window in utils.windows()) {
     if (browserURL != window.location) continue;
     let tbb = window.document.getElementById(id);
     if (tbb) buttons.push(tbb);
@@ -301,5 +322,5 @@ function toolbarbuttonExists(doc, id) {
     if ((new RegExp("(?:^|,)" + id + "(?:,|$)")).test(toolbars[i].getAttribute("currentset")))
       return toolbars[i];
   }
-  return doc.getElementById("nav-bar");
+  return false;
 }
