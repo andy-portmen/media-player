@@ -122,6 +122,13 @@ var _chrome = {
     }
   })(),
   
+  icon: (function (state) {
+    if (state == 'pause') chrome.browserAction.setIcon({path:"../../data/icon16pause.png"});
+    else if (state == 'stop') chrome.browserAction.setIcon({path:"../../data/icon16stop.png"});
+    else if (state == 'play') chrome.browserAction.setIcon({path:"../../data/icon16play.png"});
+    else chrome.browserAction.setIcon({path:"../../data/icon32.png"});
+  }),
+  
   version: function () {
     return chrome[chrome.runtime && chrome.runtime.getManifest ? "runtime" : "extension"].getManifest().version;
   }

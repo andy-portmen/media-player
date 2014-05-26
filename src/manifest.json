@@ -1,10 +1,10 @@
 {
   "name": "Media Player for YouTube™",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "manifest_version": 2,
   "short_name": "iyplayer",
   "description": "Media Player for YouTube™",
-  "author": "Andy Portmen",
+  "author": "Sarah Avilov",
   "permissions": [
     "storage",
     "tabs", 
@@ -21,7 +21,7 @@
   "content_scripts": [{
     "matches": ["http://www.youtube.com/*", "https://www.youtube.com/*"],
     "exclude_matches": ["http://www.youtube.com/embed/*", "https://www.youtube.com/embed/*"],  
-    "js": ["data/content_script/inject.js", "data/content_script/chrome_inject.js"], 
+    "js": ["data/content_script/chrome_inject.js"], 
     "run_at": "document_start"
   }],
   "options_page": "data/chrome/options/options.html",

@@ -63,7 +63,7 @@ else {  // Firefox
 }
 /**** wrapper (end) ****/
 
-var states, currentTimes, history, historyIndex, timeout = null;
+var states, currentTimes, history, historyIndex;
 
 function $ (id) {
   return document.getElementById(id);
@@ -71,17 +71,6 @@ function $ (id) {
 
 function init() {
   background.send('history-update');
-}
-
-runTimeOut();
-function runTimeOut() {
-  if (timeout) {clearTimeout(timeout);} 
-  timeout = window.setTimeout(getCurrentTime, 1000);
-}
-
-function getCurrentTime() {
-  background.send('iplayer-currentTime');
-  runTimeOut();
 }
 
 function secondsToHms(seconds) {
@@ -297,7 +286,8 @@ $("items-table").addEventListener('mouseover', function (e) {
     var flag_2 = current_tr.getElementsByTagName('td')[6] == target;
     var flag_3 = current_tr.getElementsByTagName('td')[5] == target;
     var flag_4 = current_tr.getElementsByTagName('td')[4] == target;
-    if (flag_1 || flag_2 || flag_3 || flag_4) { 
+    var flag_5 = target.getElementsByTagName('select') == target;
+    if (flag_1 || flag_2 || flag_3 || flag_4 || flag_5) { 
       [].forEach.call(trs, function(tr, index) { 
         tr.getElementsByTagName("td")[2].setAttribute('name', 'track-expand');
         tr.getElementsByTagName("td")[4].setAttribute('name', 'close-track-expand');

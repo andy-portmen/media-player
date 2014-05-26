@@ -299,6 +299,11 @@ exports.ToolbarButton = function ToolbarButton(options) {
         tbb.setAttribute('tooltiptext', value);
       }, options.id);
     },
+    set type (value) {
+      getToolbarButtons(function(tbb) {
+        tbb.setAttribute('type', value);
+      }, options.id);
+    },
     get object () {
       return utils.getMostRecentBrowserWindow().document.getElementById(options.id);
     }

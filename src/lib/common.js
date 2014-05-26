@@ -1,23 +1,25 @@
-var storage, get, popup, window, Deferred, content_script, tab, context_menu, notification, version, play;
+var storage, get, popup, window, Deferred, content_script, tab, context_menu, notification, version, play, icon;
 
 /**** wrapper (start) ****/
 if (typeof require !== 'undefined') { //Firefox
   var firefox = require("./firefox/firefox.js");
-  ["storage", "notification", "get", "popup", "window", "content_script", "tab", "context_menu", "version", "play", "Deferred"].forEach(function (id) {
+  ["storage", "notification", "get", "popup", "window", "content_script", "tab", "context_menu", "version", "icon", "play", "Deferred", "timer"].forEach(function (id) {
     this[id] = firefox[id];
   });
 }
 else if (typeof safari !== 'undefined') {  // Safari
-  ["storage", "notification", "get", "popup", "content_script", "tab", "context_menu", "version", "play"].forEach(function (id) {
+  ["storage", "notification", "get", "popup", "content_script", "tab", "context_menu", "version", "icon", "play"].forEach(function (id) {
     this[id] = _safari[id];
   });
   Deferred = task.Deferred;
+  timer = window;
 }
 else {  //Chrome
-  ["storage", "notification", "get", "popup", "content_script", "tab", "context_menu", "version", "play"].forEach(function (id) {
+  ["storage", "notification", "get", "popup", "content_script", "tab", "context_menu", "version", "icon", "play"].forEach(function (id) {
     this[id] = _chrome[id];
   });
   Deferred = task.Deferred;
+  timer = window;
 }
 /**** wrapper (end) ****/
 
@@ -113,8 +115,24 @@ function updatecontentScript(TQL, id) {
   }
 }
 
+var check = (function () {
+  var id;
+  function doOne () {
+    content_script.send('iplayer-currentTime', null, true);
+  }
+  return {
+    start: function () {
+      if (id) timer.clearInterval(id);
+      id = timer.setInterval(doOne, 1000);
+    },
+    stop: function () {
+      if (id) timer.clearInterval(id);
+      id = null;
+    }
+  }
+})();
+
 content_script.receive("player-state-changed", function (obj) {
-  if (obj.tabId) {tabURL[obj.tabId] = null;}  
   states[obj.id] = obj.state;
   currentTimes[obj.id] = obj.currentTime;
   if (obj.state == 0) { // Video ended
@@ -144,14 +162,23 @@ content_script.receive("player-state-changed", function (obj) {
       }
     }
   }
-  // icon change 
-  /*
-  if (obj.state == 1) {chrome.browserAction.setIcon({path:"data/icon16pause.png"});} 
-  else if (obj.state == 0) {chrome.browserAction.setIcon({path:"data/icon16stop.png"});}  
-  else if (obj.state == 2 || obj.state == 3) {chrome.browserAction.setIcon({path:"data/icon16play.png"});}
-  else {chrome.browserAction.setIcon({path:"data/icon32.png"});}
-  */
-  //
+  // *** icon change *** 
+  if (obj.state == 1) {
+    icon("pause");
+    check.start();
+  } 
+  else if (obj.state == 0) {
+    icon("stop");
+    check.stop();
+  }  
+  else if (obj.state == 2 || obj.state == 3) {
+    icon("play");
+    check.stop();
+  }
+  else {
+    icon("default");
+    check.stop();
+  } 
   var trackQualityLevel = JSON.parse(storage.read("trackQualityLevel"));
   updatecontentScript(trackQualityLevel, obj.id);
   updatePopup();
@@ -189,9 +216,6 @@ popup.receive('player-stop', function () {
 });
 popup.receive('player-seek', function (obj) {
   content_script.send('player-seek', obj);
-});
-popup.receive('iplayer-currentTime', function () {
-  content_script.send('iplayer-currentTime');
 });
 popup.receive('open-youtube', function () {
   tab.open('https://www.youtube.com');

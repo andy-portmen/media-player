@@ -28,15 +28,21 @@ tr td {
 }
 select {
   font-family: arial, verdana, sans-serif;
+  appearance: none;
   -webkit-appearance: none;  
   -moz-appearance: none;
   cursor: pointer;
   border-width: 0;
-  text-overflow: "";
   text-align: middle;
-  text-indent: 14px; /* 0.01: remove Firefox arrow */
-  width: 18px;
+  text-indent: 18px;
+  text-overflow: "";
+  width: 0;
+  padding: 0 18px 0 0;
+  overflow: hidden;
   background: url('quality_null.png') no-repeat center center;
+}
+select::-moz-focus-inner {
+  border: 0;
 }
 select:focus {
   outline: none;

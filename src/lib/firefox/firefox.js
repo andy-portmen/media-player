@@ -8,6 +8,7 @@ var self          = require("sdk/self"),
     prefs         = sp.prefs,
     pageMod       = require("sdk/page-mod"),
     pageWorker    = require("sdk/page-worker"),
+    timer         = require("sdk/timers"),
     tabs          = require("sdk/tabs"),
     windowUtils   = require('sdk/window/utils'),
     contextMenu   = require("sdk/context-menu"),
@@ -73,7 +74,7 @@ popup.on('show', function() {
   popup.port.emit('show', true);
 });
 popup.port.on("resize", function(obj) {
-  popup.resize(obj.w + 10, obj.h);
+  popup.resize(obj.w + 10, obj.h + 5);
 });
 
 exports.storage = {
@@ -196,6 +197,12 @@ exports.play = function (url) {
     }
   });
 }
+
+exports.icon = function (type) {
+  button.type = type;
+}
+
+exports.timer = timer;
 
 exports.window = windowUtils.getMostRecentBrowserWindow();
 exports.Promise = Promise;

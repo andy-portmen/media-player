@@ -118,6 +118,12 @@ exports.ToolbarButton = function (options) {
         }
       });
     },
+    set type (value) {
+      button.instances.forEach(function (i) {
+        var tbb = i.anchor.ownerDocument.defaultView.document.getElementById(options.id);
+        tbb.setAttribute("type", value);
+      });
+    },
     get object () {
       return getButton();
     }

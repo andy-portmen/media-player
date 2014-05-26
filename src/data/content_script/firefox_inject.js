@@ -1,4 +1,4 @@
-var background = {}, manifest = {};
+var background = {};
 
 /**** wrapper (start) ****/
 background.send = function (id, data) {
@@ -7,11 +7,9 @@ background.send = function (id, data) {
 background.receive = function (id, callback) {
   self.port.on(id, callback);
 }
-manifest.url = "resource://jid1-dgnibwqga0sibw-at-jetpack/igtranslator/";
 /**** wrapper (end) ****/
 
 if (window.frameElement === null) { // filter-out iFrame window
-
   function $(id) {
     $.cache = $.cache || [];
     $.cache[id] = $.cache[id] || window.content.document.getElementById(id);
@@ -26,7 +24,7 @@ if (window.frameElement === null) { // filter-out iFrame window
   function Player (p) {
     p = XPCNativeWrapper.unwrap ($('movie_player') || $('movie_player-flash') || {});
     var extend = {
-      getAvailableQualityLevels: p.getAvailableQualityLevels,
+      getAvailableQualityLevels: () => p.getAvailableQualityLevels(),
       getDuration: () => p.getDuration(),
       getTitle: () => title(),
       getVideoUrl: () => p.getVideoUrl(),
@@ -43,7 +41,7 @@ if (window.frameElement === null) { // filter-out iFrame window
         p.stopVideo();
         p.clearVideo();
       },
-      quality: function (val) {
+      setPlaybackQuality: function (val) {
         var levels = p.getAvailableQualityLevels();
         p.setPlaybackQuality(levels.indexOf(val) != -1 ? val : levels[0])
       }
@@ -51,37 +49,39 @@ if (window.frameElement === null) { // filter-out iFrame window
     return extend;
   }
   var player = new Player();
-
+  
   var location = () => window.content.document ? window.content.document.location.href : "";
     
   function getVideoUrl()                {return location;}
   function getVideoId()                 {return (/[?&]v=([^&]+)/.exec(player.getVideoUrl()) || [null,null])[1];}
-  function loadVideoById(id)            {location("https://www.youtube.com/watch?v=" + id);}
-  function loadVideoByUrl(url)          {location(url);}
+  function loadVideoById(id)            {window.content.document.location.href = "https://www.youtube.com/watch?v=" + id;}
+  function loadVideoByUrl(url)          {window.content.document.location.href = url;}
   function play()                       {player.play();}
   function pause()                      {player.pause();}
   function stop()                       {player.stop();}
   function setVolume(v)                 {player.setVolume(v);}
   function seekTo(s)                    {player.seekTo(s);}
   function getCurrentTime()             {return player.getCurrentTime();}
-  function getAvailableQualityLevels()  {return player.quality();}
+  function getAvailableQualityLevels()  {return player.getAvailableQualityLevels();}
   function getTitle()                   {return player.getTitle();}
   function getDuration()                {return player.getDuration();}
-  function setPlaybackQuality(q)        {player.setPlaybackQuality();}
+  function setPlaybackQuality(q)        {player.setPlaybackQuality(q);}
  
-  player.addEventListener("onStateChange", "iycenterListener");  
-  unsafeWindow.iycenterListener = function (e) {
+  unsafeWindow.iyplayerListener = function (e) {
     background.send('player-state-changed', {
       state: e,
       currentTime: getCurrentTime(),
       id: getVideoId()
     });
   };
+  player.addEventListener("onStateChange", "iyplayerListener");  
 
-  background.send('iplayer-currentTime-content-script', {
-    currentTime: getCurrentTime(),
-    id: getVideoId()
+  background.send('player-details', {
+    id: getVideoId(),
+    title: getTitle().toLowerCase(),
+    duration: getDuration()
   });
+    
   background.send('iplayer-qualityLevels-content-script', {
     qualityLevels: getAvailableQualityLevels(),
     id: getVideoId()
@@ -106,7 +106,10 @@ if (window.frameElement === null) { // filter-out iFrame window
     }
   });
   background.receive("iplayer-currentTime", function () {
-    getCurrentTime();
+    background.send('iplayer-currentTime-content-script', {
+      currentTime: getCurrentTime(),
+      id: getVideoId()
+    });
   });
   background.receive("playback-quality-update-common", function (data) {
     if (data.id == getVideoId()) {
@@ -125,7 +128,8 @@ if (window.frameElement === null) { // filter-out iFrame window
     getAvailableQualityLevels(); // Must be here to work!
     setVolume(obj.volume * 10);
   });
-
+  background.send('request-inits');
+  
   window.addEventListener("beforeunload", function() {  
     background.send('player-state-changed', {
       state: -1,

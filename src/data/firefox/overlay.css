@@ -1,3 +1,13 @@
-#iyplayer {
+#iyplayer,
+#iyplayer[type=default] {
   list-style-image: url('../icon16.png') !important;
+}
+#iyplayer[type=play] {
+  list-style-image: url('../icon16play.png') !important;
+}
+#iyplayer[type=pause] {
+  list-style-image: url('../icon16pause.png') !important;
+}
+#iyplayer[type=stop] {
+  list-style-image: url('../icon16stop.png') !important;
 }
