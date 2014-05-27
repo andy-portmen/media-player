@@ -68,7 +68,26 @@ if (window.frameElement === null) { // filter-out iFrame window
   window.addEventListener('DOMContentLoaded', function () { /* trigger */ 
     var pagecontainer = document.getElementById('page-container');
     if (!pagecontainer) return;
-    if (/^https?:\/\/www\.youtube.com\/watch\?/.test(window.location.href)) init();
+    if (/^https?:\/\/www\.youtube.com\/watch\?/.test(window.location.href)) {
+      var timeout;
+      function DOMlistener_Timeout() {
+        if (timeout) clearTimeout(timeout);
+        timeout = setTimeout(DOMlistener, 500);
+      }
+      function DOMlistener() {
+        var totalTime = (document.querySelector(".ytp-time-duration") || {textContent: ""}).textContent;
+        var p = document.getElementById('movie_player') || document.getElementById('movie_player-flash');
+        if (p && p.getDuration) {totalTime = p.getDuration() + "";}
+        var watch_title = (window.content.document || document).getElementsByClassName("watch-title");
+        if (watch_title[0] == 'undefined' || !watch_title || !watch_title[0]) {watch_title = [{title: ''}];};
+        var title = watch_title[0].title;
+        if (p && totalTime.length > 0 && title) {
+          init();
+          document.removeEventListener("DOMSubtreeModified", DOMlistener_Timeout, false);
+        }
+      }
+      document.addEventListener("DOMSubtreeModified", DOMlistener_Timeout, false);
+    }
     var isAjax = /class[\w\s"'-=]+spf\-link/.test(pagecontainer.innerHTML);
     var content = document.getElementById('content');
     if (isAjax && content) { // Ajax UI
@@ -114,8 +133,13 @@ if (window.frameElement === null) { // filter-out iFrame window
       });
       script_inject([0, 2, 3]);
     }
+    
+    var HTML5Components = (document.querySelector(".ytp-time-duration") || {textContent: ""}).textContent;
+    isHTML5 = HTML5Components ? true : false;
+    
     if (isHTML5 && !isHTML5Injected) {script_inject([1]); isHTML5Injected = true;} // If the video is HTML5, then only one injection is needed!
     if (!isHTML5) {script_inject([1]);} // If the video is Flash, multiple 'player.addEventListener' injection is needed!
+     
     background.send('request-inits');
     background.send('player-details', {
       id: getVideoId(),

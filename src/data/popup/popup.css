@@ -36,7 +36,7 @@ select {
   text-align: middle;
   text-indent: 18px;
   text-overflow: "";
-  width: 0;
+  width: 1px;
   padding: 0 18px 0 0;
   overflow: hidden;
   background: url('quality_null.png') no-repeat center center;
