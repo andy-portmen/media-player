@@ -1,21 +1,21 @@
-var storage, get, popup, window, Deferred, content_script, tab, context_menu, notification, version, play, icon;
+var storage, popup, window, Deferred, content_script, tab, version, icon;
 
 /**** wrapper (start) ****/
 if (typeof require !== 'undefined') { //Firefox
   var firefox = require("./firefox/firefox.js");
-  ["storage", "notification", "get", "popup", "window", "content_script", "tab", "context_menu", "version", "icon", "play", "Deferred", "timer"].forEach(function (id) {
+  ["storage", "popup", "window", "content_script", "tab", "version", "icon", "Deferred", "timer"].forEach(function (id) {
     this[id] = firefox[id];
   });
 }
 else if (typeof safari !== 'undefined') {  // Safari
-  ["storage", "notification", "get", "popup", "content_script", "tab", "context_menu", "version", "icon", "play"].forEach(function (id) {
+  ["storage", "popup", "content_script", "tab", "version", "icon"].forEach(function (id) {
     this[id] = _safari[id];
   });
   Deferred = task.Deferred;
   timer = window;
 }
 else {  //Chrome
-  ["storage", "notification", "get", "popup", "content_script", "tab", "context_menu", "version", "icon", "play"].forEach(function (id) {
+  ["storage", "popup", "content_script", "tab", "version", "icon"].forEach(function (id) {
     this[id] = _chrome[id];
   });
   Deferred = task.Deferred;
@@ -111,7 +111,7 @@ function updatecontentScript(TQL, id) {
     content_script.send("playback-quality-update-common", {
       id: id,
       quality: TQL[id]
-    });
+    }, true);
   }
 }
 
@@ -140,7 +140,7 @@ content_script.receive("player-state-changed", function (obj) {
     var loopIndex = parseInt(storage.read('loop-all'));
     if (loopsIndex) {
       if (loops[obj.id] < 6) {loops[obj.id] = loopsIndex - 1;}
-      content_script.send('player-play', obj.id);
+      content_script.send('player-play', obj.id, true);
     }
     else if (loopIndex) {
       var i;
@@ -152,7 +152,7 @@ content_script.receive("player-state-changed", function (obj) {
             content_script.send('player-new-id', {
               id: obj.id,
               newID: newID
-            });
+            }, true);
           }
           break;
         }
@@ -189,7 +189,7 @@ content_script.receive('player-details', function (data) {
 content_script.receive("request-inits", function () {
   content_script.send("request-inits", {
     volume: parseInt(storage.read("popupVolumeIndex"))
-  });
+  }, true);
 });
 content_script.receive("iplayer-currentTime-content-script", function (e) {
   currentTimes[e.id] = e.currentTime;
@@ -203,25 +203,25 @@ content_script.receive("iplayer-qualityLevels-content-script", function (e) {
 popup.receive('player-play', function (videoId) {
   var n = states[videoId];
   if (Math.floor(n) === n && n != -1) {
-    content_script.send('player-play', videoId);
+    content_script.send('player-play', videoId, true);
   } else {
     tab.open('https://www.youtube.com/watch?v=' + videoId);
   }
 });
 popup.receive('player-pause', function (videoId) {
-  content_script.send('player-pause', videoId);
+  content_script.send('player-pause', videoId, true);
 });
 popup.receive('player-stop', function () {
-  content_script.send('player-stop');
+  content_script.send('player-stop', null, true);
 });
 popup.receive('player-seek', function (obj) {
-  content_script.send('player-seek', obj);
+  content_script.send('player-seek', obj, true);
 });
 popup.receive('open-youtube', function () {
   tab.open('https://www.youtube.com');
 });
 popup.receive('player-new-id', function (obj) {
-  content_script.send('player-new-id', obj);
+  content_script.send('player-new-id', obj, true);
 });
 popup.receive('loop-all', function (index) {
   storage.write('loop-all', index);
@@ -239,7 +239,7 @@ popup.receive("popupHistoryIndex", function (historyIndex) {
 });
 popup.receive("popupVolumeIndex", function (volumeIndex) {
   storage.write("popupVolumeIndex", volumeIndex);
-  content_script.send('popupVolumeIndex', volumeIndex);
+  content_script.send('popupVolumeIndex', volumeIndex, true);
 });
 popup.receive("delete-track", function (videoId) {
   deleteHistory(videoId);

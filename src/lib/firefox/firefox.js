@@ -95,19 +95,6 @@ exports.storage = {
   }
 }
 
-exports.get = function (url, headers, data) {
-  var d = new Promise.defer();
-  Request({
-    url: url,
-    headers: headers || {},
-    content: data,
-    onComplete: function (response) {
-      d.resolve(response.text);
-    }
-  })[data ? "post" : "get"]();
-  return d.promise;
-}
-
 exports.popup = {
   send: function (id, data) {
     popup.port.emit(id, data);
@@ -149,53 +136,8 @@ exports.tab = {
   }
 }
 
-exports.context_menu = {
-  create: function (title, type, callback) {
-    var menuItem = contextMenu.Item({
-      label: title,
-      image: data.url('./icon16.png'),
-      context: type == 'selection' ? contextMenu.SelectionContext() : contextMenu.PageContext(),
-      contentScript: 'self.on("click", function () {self.postMessage();});',
-      onMessage: function () {
-        callback();
-      }
-    });
-  }
-}
-
 exports.version = function () {
   return self.version;
-}
-
-exports.notification = (function () { // https://github.com/fwenzel/copy-shorturl/blob/master/lib/simple-notify.js
-  return function (title, text) {
-    try {
-      let alertServ = Cc["@mozilla.org/alerts-service;1"].
-                      getService(Ci.nsIAlertsService);
-      alertServ.showAlertNotification(data.url("icon32.png"), title, text, null, null, null, "");
-    }
-    catch(e) {
-      let browser = window.active.gBrowser,
-          notificationBox = browser.getNotificationBox();
-
-      notification = notificationBox.appendNotification(text, 'jetpack-notification-box',
-          data.url("icon32.png"), notificationBox.PRIORITY_INFO_MEDIUM, []
-      );
-      timer.setTimeout(function() {
-          notification.close();
-      }, 5000);
-    }
-  }
-})();
-
-exports.play = function (url) {
-  var worker = pageWorker.Page({
-    contentScript: "var audio = new Audio('" + url + "'); audio.addEventListener('ended', function () {self.postMessage()}); audio.volume = 1; audio.play();",
-    contentURL: data.url("firefox/sound.html"),
-    onMessage: function(arr) {
-      worker.destroy();
-    }
-  });
 }
 
 exports.icon = function (type) {
@@ -203,7 +145,6 @@ exports.icon = function (type) {
 }
 
 exports.timer = timer;
-
 exports.window = windowUtils.getMostRecentBrowserWindow();
 exports.Promise = Promise;
 exports.Deferred = Promise.defer;

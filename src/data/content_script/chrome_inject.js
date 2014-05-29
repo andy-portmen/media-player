@@ -72,7 +72,7 @@ if (window.frameElement === null) { // filter-out iFrame window
       var timeout;
       function DOMlistener_Timeout() {
         if (timeout) clearTimeout(timeout);
-        timeout = setTimeout(DOMlistener, 500);
+        timeout = window.setTimeout(DOMlistener, 500);
       }
       function DOMlistener() {
         var totalTime = (document.querySelector(".ytp-time-duration") || {textContent: ""}).textContent;
@@ -82,7 +82,7 @@ if (window.frameElement === null) { // filter-out iFrame window
         if (watch_title[0] == 'undefined' || !watch_title || !watch_title[0]) {watch_title = [{title: ''}];};
         var title = watch_title[0].title;
         if (p && totalTime.length > 0 && title) {
-          init();
+          window.setTimeout(init, 500);
           document.removeEventListener("DOMSubtreeModified", DOMlistener_Timeout, false);
         }
       }
