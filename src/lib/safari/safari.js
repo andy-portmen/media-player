@@ -1,4 +1,7 @@
 var _safari = {
+  Promise: Q.promise,
+  parser: new window.DOMParser(),
+
   storage: {
     read: function (id) {
       return localStorage[id] || null;
@@ -35,12 +38,52 @@ var _safari = {
       }
     },
     openOptions: function () {
-        _safari.notification("Google Translator", "To change Settings go to Safari -> Preferences -> Extensions");
+      var optionsTab = false;
+      var tabs = safari.application.activeBrowserWindow.tabs;
+      for (var i = 0; i < tabs.length; i++) {
+        var tab = tabs[i];
+          if (tab.url && tab.url.indexOf("data/options/options.html") != -1) {
+            tab.activate();
+            optionsTab = true;
+            break;
+          }
+      }
+      if (!optionsTab) safari.application.activeBrowserWindow.openTab().url = safari.extension.baseURI + "data/options/options.html";
     }
   },
 
   version: function () {
     return safari.extension.displayVersion;
+  },
+
+  get: function (url, headers, data) {
+    var xhr = new XMLHttpRequest();
+    var deferred = new Q.defer();
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4) {
+        if (xhr.status >= 400) {
+          var e = new Error(xhr.statusText);
+          e.status = xhr.status;
+          deferred.reject(e);
+        }
+        else {
+          deferred.resolve(xhr.responseText);
+        }
+      }
+    };
+    xhr.open(data ? "POST" : "GET", url, true);
+    for (var id in headers) {
+      xhr.setRequestHeader(id, headers[id]);
+    }
+    if (data) {
+      var arr = [];
+      for(e in data) {
+        arr.push(e + "=" + data[e]);
+      }
+      data = arr.join("&");
+    }
+    xhr.send(data ? data : "");
+    return deferred.promise;
   },
 
   content_script: (function () {
@@ -55,7 +98,9 @@ var _safari = {
         if (global) {
           safari.application.browserWindows.forEach(function (browserWindow) {
             browserWindow.tabs.forEach(function (tab) {
-              if (tab.page) tab.page.dispatchMessage(id, data);
+              if (tab.page) {
+                tab.page.dispatchMessage(id, data);
+              }
             });
           });
         }
@@ -67,11 +112,40 @@ var _safari = {
         callbacks[id] = callback;
       }
     }
+  })(),
+
+  manifest: {
+    url: safari.extension.baseURI
+  },
+
+  icon: function (state) {
+    var toolbarItem = safari.extension.toolbarItems[0];
+    if (state == 'pause' || state == 'stop' || state == 'play') {
+      toolbarItem.image = safari.extension.baseURI + "data/icon16" + state + ".png";
+    }
+    else {
+      toolbarItem.image = safari.extension.baseURI + "data/icon16-mac.png";
+    }
+  },
+
+  options: (function () {
+    var callbacks = {};
+    safari.application.addEventListener("message", function (e) {
+      if (callbacks[e.message.id]) {
+        callbacks[e.message.id](e.message.data);
+      }
+    }, false);
+    return {
+      send: function (id, data) {
+        safari.application.browserWindows.forEach(function (browserWindow) {
+          browserWindow.tabs.forEach(function (tab) {
+            if (tab.page) tab.page.dispatchMessage(id, data);
+          });
+        });
+      },
+      receive: function (id, callback) {
+        callbacks[id] = callback;
+      }
+    }
   })()
 }
-// Transfer settings
-safari.extension.settings.addEventListener("change", function (e) {
-  var index = ["isTextSelection", "isDblclick", "enableHistory", "numberHistoryItems"].indexOf(e.key);
-  if (index == -1) return;
-  _safari.storage.write(e.key, e.newValue);
-}, false);

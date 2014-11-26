@@ -51,9 +51,9 @@ else {  // Chrome
 }
 /**** wrapper (end) ****/
 
+var isHTML5 = false;
 var isFirstInject = true, isHTML5Injected = false;
-var global_currentTime = 0, global_qualityLevels = [];
-var isHTML5 = false, currentVideoID = "";
+var global_currentTime = 0, global_qualityLevels = [], global_videoId = '';
 
 if (window.frameElement === null) { /* filter-out iFrame window */
   function $(id) {
@@ -108,15 +108,15 @@ if (window.frameElement === null) { /* filter-out iFrame window */
   }, false);
 
   function init() {
-    if (currentVideoID) { /* unload previously played video */
+    if (global_videoId) { /* unload previously played video */
       background.receive('***', function (){}); /* to initiate message passing */
       background.send('player-state-changed', {
         state: -1,
-        id: currentVideoID,
+        id: global_videoId,
         currentTime: 0
       });
     }
-    currentVideoID = getVideoId();
+    getVideoId();
     if (isFirstInject) {
       isFirstInject = false;
       document.body.addEventListener("iyplayer-event", function (e) {
@@ -159,12 +159,20 @@ if (window.frameElement === null) { /* filter-out iFrame window */
         });
       }
     });
+    document.body.addEventListener("iplayer-getVideoId-event", function (e) {
+      global_videoId = e.detail.videoId;
+      /* set title for document and player */
+      document.title = '\u25BA' + ' ' + e.detail.videoTitle;
+      document.querySelector("span[class*='watch-title']").textContent = e.detail.videoTitle;
+      document.querySelector("span[class*='watch-title']").setAttribute("title", e.detail.videoTitle);
+    });
 
     /* Defining playback functions */
     function getVideoUrl()                {return document.location.href;}
-    function getVideoId()                 {return (/watch\?v\=([^\&]*)/.exec(document.location.href) || [null,null])[1];}
-    function loadVideoById(id)            {document.location.replace("https://www.youtube.com/watch?v=" + id);}
     function loadVideoByUrl(url)          {document.location.replace(url);}
+    function getVideoId()                 {document.body.dispatchEvent(new CustomEvent("iplayer-send-command", {detail: {cmd: "getVideoId"}}));return global_videoId;}
+    function loadVideoById_f(id)          {document.location.replace("https://www.youtube.com/watch?v=" + id);}
+    function loadVideoById_h(id)          {document.body.dispatchEvent(new CustomEvent("iplayer-send-command", {detail: {cmd: "loadVideoById", videoId: id}}));}
     function play()                       {document.body.dispatchEvent(new CustomEvent("iplayer-send-command", {detail: {cmd: "play"}}));}
     function pause()                      {document.body.dispatchEvent(new CustomEvent("iplayer-send-command", {detail: {cmd: "pause"}}));}
     function stop()                       {document.body.dispatchEvent(new CustomEvent("iplayer-send-command", {detail: {cmd: "stop"}}));}
@@ -208,6 +216,15 @@ if (window.frameElement === null) { /* filter-out iFrame window */
             break;
           case "setPlaybackQuality":
             iyp_1.setPlaybackQuality(e.detail.quality);
+            break;
+          case "getVideoId":
+            var id = (/watch\?v\=([^\&]*)/.exec(iyp_1.getVideoUrl()) || [null,null])[1];
+            var data = iyp_1.getVideoData() || {};
+            var title = data.title || '';
+            document.body.dispatchEvent(new CustomEvent("iplayer-getVideoId-event", {detail: {videoId: id, videoTitle: title}}));
+            break;
+          case "loadVideoById":
+            iyp_1.loadVideoById(e.detail.videoId);
             break;
           }
         });
@@ -263,7 +280,17 @@ if (window.frameElement === null) { /* filter-out iFrame window */
     });
     background.receive("player-new-id", function (obj) {
       if (obj.id == getVideoId()) {
-        loadVideoById(obj.newID);
+        background.send('player-state-changed', {
+          state: -1,
+          id: obj.id,
+          currentTime: 0
+        });
+        if (document.hidden || document.visibilityState == 'hidden') { /* if document is hidden */
+          loadVideoById_h(obj.newID);
+        }
+        else {
+          loadVideoById_f(obj.newID);
+        }
       }
     });
     background.receive("popupVolumeIndex", function (vol) {
@@ -274,11 +301,11 @@ if (window.frameElement === null) { /* filter-out iFrame window */
       setVolume(obj.volume * 10);
     });
   }
-
+  /* change state to -1 @beforeunload */
   window.addEventListener("beforeunload", function() {
     background.send('player-state-changed', {
       state: -1,
-      id: currentVideoID,
+      id: global_videoId,
       currentTime: 0
     });
   });

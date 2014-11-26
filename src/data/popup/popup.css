@@ -1,16 +1,19 @@
 body {
-  width: 452px;
-  height: 227px;
+  width: 500px;
+  height: 212px;
+  border: 0;
   overflow: hidden;
   margin: 0 5px 0 5px;
   background-color: #fff;
   -webkit-user-select: none;
   -moz-user-select: none;
   cursor: defualt;
-  border: solid 0px red;
 }
 .webkit body {
   margin: 0px 0px 0px 0px;
+}
+.mac.webkit body {
+  margin: 0 5px 0 5px;
 }
 table {
   font-family: Arial;
@@ -23,20 +26,20 @@ table {
   border: 0;
 }
 tr td {
-  border: solid 0px rgba(108, 167, 128, 0.5);
-  border-radius: 3px;
+  border: 0;
 }
 select {
+  width: 1px;
+  height: 22px;
   font-family: arial, verdana, sans-serif;
   appearance: none;
-  -webkit-appearance: none;  
+  -webkit-appearance: none;
   -moz-appearance: none;
   cursor: pointer;
   border-width: 0;
   text-align: middle;
   text-indent: 18px;
   text-overflow: "";
-  width: 1px;
   padding: 0 18px 0 0;
   overflow: hidden;
   background: url('quality_null.png') no-repeat center center;
@@ -48,81 +51,85 @@ select:focus {
   outline: none;
 }
 .mac.webkit select {
-  padding-left: 7px;
+  padding-left: 0px;
 }
-#controls-div, #playlist-div, #search-div{
+#controls-div{
   margin: 5px 0 0 0;
+}
+#playlist-div, #search-div{
+  margin: 0;
 }
 #search-div{
   border: solid 1px rgba(0, 0, 0, 0.5);
-  border-radius: 2px;
 }
 #controls-table {
-  height: 40px;
+  height: 37px;
   border-spacing: 2px 0px;
   margin: 0 -2px 0 -2px;
   cursor: pointer;
 }
-#controls-table tr td{
-  border: solid 1px rgba(0, 0, 0, 0.5);
-  -webkit-transition: 300ms opacity; 
+#controls-table tr td {
+  border: 0;
+  -webkit-transition: 300ms opacity;
   -moz-transition: 300ms opacity;
   opacity: 0.7;
 }
 #controls-table tr td:hover {
-  -webkit-transition: 0ms opacity; 
+  -webkit-transition: 0ms opacity;
   -moz-transition: 0ms opacity;
   opacity: 1.0;
 }
 #previous-td {
-  width: 60px; 
-  border-radius: 2px;
-  background: #F3F3F3 url(previous.png) no-repeat center center;
+  width: 55px;
+  background: url(previous.png) no-repeat center center;
+  background-size: 26px 26px;
 }
 #play-td {
-  width: 105px; 
-  border-radius: 2px;
+  width: 133px;
+  background: url(play.png) no-repeat center center;
+  background-size: 26px 26px;
 }
 #play-td[name='play'] {
-  background: #F3F3F3 url(play.png) no-repeat center center;
+  background: url(play.png) no-repeat center center;
+  background-size: 26px 26px;
 }
 #play-td[name='pause'] {
-  background: #F3F3F3 url(pause.png) no-repeat center center;
+  background: url(pause.png) no-repeat center center;
+  background-size: 26px 26px;
 }
 #next-td {
-  width: 60px; 
-  border-radius: 2px;
-  background: #F3F3F3 url(next.png) no-repeat center center;
+  width: 55px;
+  border-radius: 0px;
+  background: url(next.png) no-repeat center center;
+  background-size: 26px 26px;
 }
 #stop-td {
-  width: 60px; 
-  border-radius: 2px;
-  background: #F3F3F3 url(stop.png) no-repeat center center;
+  width: 55px;
+  background: url(stop.png) no-repeat center center;
+  background-size: 26px 26px;
 }
 #volume-td {
-  width: 75px; 
-  border-radius: 2px;
-  background: #F3F3F3 url(volume.png) no-repeat center center;
+  width: 75px;
+  background: url(volume.png) no-repeat center center;
+}
+#volume-td:hover {
+    background: white url();
 }
 #volume-td div {
   width: 4px;
-  border: solid 1px #F3F3F3;
+  border: solid 1px #DCDCDC;
   border-radius: 3px;
-  background-color: rgba(87, 155, 211, 1.0);
   display: inline-block;
   margin: 0 0 -6px -3px;
-  -webkit-transition: 300ms opacity; 
+  -webkit-transition: 300ms opacity;
   -moz-transition: 300ms opacity;
   opacity: 0.0;
 }
 #volume-td div:nth-child(1) {
   margin-left: 4;
 }
-#volume-td:hover {
-  background: #F3F3F3;
-}
 #volume-td:hover div{
-  -webkit-transition: 0ms opacity; 
+  -webkit-transition: 0ms opacity;
   -moz-transition: 0ms opacity;
   opacity: 0.3;
 }
@@ -143,39 +150,42 @@ select:focus {
 
 #loop-all-td,
 #loop-all-td[loopIndex='0']{
-  width: 60px; 
-  border-radius: 2px;
-  background: #F3F3F3 url(loop-all.png) no-repeat center center;
+  width: 55px;
+  background: url(loop-all.png) no-repeat center center;
 }
 #loop-all-td[loopIndex='1']{
-  background: #F3F3F3 url(loop-all-1.png) no-repeat center center;
+  background: url(loop-all-1.png) no-repeat center center;
 }
 #loop-all-td[loopIndex='2']{
-  background: #F3F3F3 url(loop-all-2.png) no-repeat center center;
+  background: url(loop-all-2.png) no-repeat center center;
 }
 #loop-all-td[loopIndex='3']{
-  background: #F3F3F3 url(loop-all-3.png) no-repeat center center;
+  background: url(loop-all-3.png) no-repeat center center;
 }
 #loop-all-td[loopIndex='4']{
-  background: #F3F3F3 url(loop-all-4.png) no-repeat center center;
+  background: url(loop-all-4.png) no-repeat center center;
 }
 #loop-all-td[loopIndex='5']{
-  background: #F3F3F3 url(loop-all-5.png) no-repeat center center;
+  background: url(loop-all-5.png) no-repeat center center;
 }
 #loop-all-td[loopIndex='6']{
-  background: #F3F3F3 url(loop-all-infinity.png) no-repeat center center;
+  background: url(loop-all-infinity.png) no-repeat center center;
+}
+#options-td {
+  width: 45px;
+  background: url(options.png) no-repeat center center;
+  background-size: 26px 26px;
 }
 #items-scroll-table tr td{
   border: 0;
 }
 #items-table{
-  border-spacing: 0px 3px;
+  border-spacing: 0px 1px;
+  margin: 5px 0 5px 0;
 }
 #items-table tr td{
-  border: solid 0px rgba(108, 167, 128, 0.13);
-  border-radius: 1px;
-  background-color: #F3F3F3 !important;
-  -webkit-transition: 300ms background-color; 
+  border: 0;
+  -webkit-transition: 300ms background-color;
   -moz-transition: 300ms background-color;
   cursor: pointer;
 }
@@ -186,9 +196,8 @@ select:focus {
   overflow: hidden;
 }
 #items-table tr td:hover{
-  -webkit-transition: 0ms background-color; 
+  -webkit-transition: 0ms background-color;
   -moz-transition: 0ms background-color;
-  background-color: #B5B5B5 !important;
 }
 #items-table tr td[name='drag']{
   width: 22px;
@@ -198,15 +207,20 @@ select:focus {
 }
 #items-table tr td[name='play-icon']{
   width: 22px;
+  min-width: 22px;
+  max-width: 22px;
 }
 #items-table tr td[name='track']{
-  min-width: 276px;
-  max-width: 276px;
+  width: 341px;
+  min-width: 341px;
+  max-width: 341px;
   padding: 0 3px 0 3px;
-  background: url(td-background.png) no-repeat -284px center;
+  background: url(td-background.png) no-repeat -347px center;
 }
-#items-table tr td[name='track']:hover{
-  background-color: #F3F3F3 !important;
+.gecko #items-table tr td[name='track']{
+  width: 344px;
+  min-width: 344px;
+  max-width: 344px;
 }
 #items-table tr td[name='time']{
   min-width: 80px;
@@ -216,6 +230,9 @@ select:focus {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+}
+#items-table tr td[name='time']:hover{
+  color: white;
 }
 #items-table tr td[name='close-track'] {
   width: 0;
@@ -233,21 +250,28 @@ select:focus {
   width: 28px;
 }
 #items-table tr td[name='track-expand'] {
-  min-width: 226px;
-  max-width: 226px;
+  width: 262px;
+  min-width: 262px;
+  max-width: 262px;
   padding: 0 3px 0 3px;
-  background: url(td-background-expand.png) no-repeat -234px center;
+  background: url(td-background-expand.png) no-repeat -262px center;
 }
-#items-table tr[state='play'] td{
+#items-table tr[state='play'] td {
 }
-#items-table tr[state='play']{
+#items-table tr[state='play'] {
   font-weight: bold;
 }
+#items-table tr[state='play'] td[name='track'] {
+  color: #FFF7D6;
+}
+#items-table tr[state='play'] td[name='track-expand'] {
+  color: #FFF7D6;
+}
 #items-table tr[state='stop'] td[name='track'] {
-  background: url(td-background.png) no-repeat -284px center;
+  background: url(td-background.png) no-repeat -347px center;
 }
 #items-table tr[state='end'] td[name='track'] {
-  background: url(td-background.png) no-repeat -284px center;
+  background: url(td-background.png) no-repeat -347px center;
 }
 #items-table tr td[name='play-icon'] {
   background: url(play-track.png) no-repeat center center;
@@ -257,8 +281,6 @@ select:focus {
 }
 #items-table tr[state='pause'] td[name='play-icon'] {
   background: url(play-track.png) no-repeat center center;
-}
-#items-table tr[state='play'] td[name='time'] {
 }
 #items-table tr[state='loading'] td[name='time'] {
   background: url(loading.gif) no-repeat center center;
@@ -309,68 +331,74 @@ select:focus {
   width: 28px;
   background: url(save-track-added.png) no-repeat center center;
 }
-#scroll-table{
+#scroll-table {
   border-spacing: 0px 0px;
+  background-color: #FFF;
+  margin: 0;
+  padding: 0;
+  width: 100%;
 }
-#scroll-table tr td{
-  border: solid 1px rgba(0, 0, 0, 0.5);
-  border-radius: 2px;
+#scroll-table tr td {
+  border: 0;
+  margin: 0;
+  padding: 0;
 }
-#scroll-table td{
-  height: 65px;
-  width: 14px;
-  padding: 0 1px 0 1px;
+#scroll-table td {
+  height: 14px;
+  width: 450px;
   cursor: pointer;
 }
 #scroll-up-td{
-  background: url(up.png) no-repeat center top;
-  -webkit-transition: 300ms opacity; 
+  background: url(up.png) no-repeat center center;
+  -webkit-transition: 300ms opacity;
   -moz-transition: 300ms opacity;
-  opacity: 0.7;
+  opacity: 0.3;
 }
 #scroll-down-td{
-  background: url(down.png) no-repeat center bottom;
-  -webkit-transition: 300ms opacity; 
+  background: url(down.png) no-repeat center center;
+  -webkit-transition: 300ms opacity;
   -moz-transition: 300ms opacity;
-  opacity: 0.7;
+  opacity: 0.3;
 }
 #scroll-up-td:hover{
-  -webkit-transition: 0ms opacity; 
+  -webkit-transition: 0ms opacity;
   -moz-transition: 0ms opacity;
   opacity: 1.0;
 }
 #scroll-down-td:hover{
-  -webkit-transition: 0ms opacity; 
+  -webkit-transition: 0ms opacity;
   -moz-transition: 0ms opacity;
   opacity: 1.0;
 }
 #search-table {
-  height: 30px
+  height: 30px;
+  width: 100%;
 }
-#input { 
+#input {
+  border: 0;
   border-width: 0;
   width: 396px;
-  font-size: 16px; 
+  font-size: 16px;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  margin: 0 10px 0 10px;   
+  margin: 0 10px 0 10px;
 }
 #input:focus{
   outline: 0;
 }
 #search-td {
-  width: 32px; 
+  width: 32px;
   background: url('search.png') no-repeat center center;
   -webkit-user-select: none;
   -moz-user-select: none;
   cursor: pointer;
-  -webkit-transition: 200ms opacity; 
+  -webkit-transition: 200ms opacity;
   -moz-transition: 200ms opacity;
   opacity: 0.7;
 }
 #search-td:hover {
-  -webkit-transition: 0ms opacity; 
+  -webkit-transition: 0ms opacity;
   -moz-transition: 0ms opacity;
   opacity: 1.0;
 }

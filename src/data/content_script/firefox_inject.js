@@ -15,14 +15,13 @@ if (window.frameElement === null) { // filter-out iFrame window
     $.cache[id] = $.cache[id] || window.content.document.getElementById(id);
     return $.cache[id];
   }
-
   function title () {
     if (!window.content.document) return "no title";
     return [].reduce.call(window.content.document.getElementsByClassName("watch-title"), (p, c) => c.title, "no title");
   }
-
-  function Player (p) {
-    p = XPCNativeWrapper.unwrap ($('movie_player') || $('movie_player-flash') || {});
+  function YouTubePlayer() {
+    var p = XPCNativeWrapper.unwrap ($('movie_player') || $('movie_player-flash'));
+    if (!p) return null;
     var extend = {
       getAvailableQualityLevels: () => p.getAvailableQualityLevels(),
       getDuration: () => p.getDuration(),
@@ -48,93 +47,93 @@ if (window.frameElement === null) { // filter-out iFrame window
     }
     return extend;
   }
-  var player = new Player();
-  
-  var location = () => window.content.document ? window.content.document.location.href : "";
-    
-  function getVideoUrl()                {return location;}
-  function getVideoId()                 {return (/[?&]v=([^&]+)/.exec(player.getVideoUrl()) || [null,null])[1];}
-  function loadVideoById(id)            {window.content.document.location.href = "https://www.youtube.com/watch?v=" + id;}
-  function loadVideoByUrl(url)          {window.content.document.location.href = url;}
-  function play()                       {player.play();}
-  function pause()                      {player.pause();}
-  function stop()                       {player.stop();}
-  function setVolume(v)                 {player.setVolume(v);}
-  function seekTo(s)                    {player.seekTo(s);}
-  function getCurrentTime()             {return player.getCurrentTime();}
-  function getAvailableQualityLevels()  {return player.getAvailableQualityLevels();}
-  function getTitle()                   {return player.getTitle();}
-  function getDuration()                {return player.getDuration();}
-  function setPlaybackQuality(q)        {player.setPlaybackQuality(q);}
- 
-  unsafeWindow.iyplayerListener = function (e) {
-    background.send('player-state-changed', {
-      state: e,
-      currentTime: getCurrentTime(),
-      id: getVideoId()
-    });
-  };
-  player.addEventListener("onStateChange", "iyplayerListener");  
+  var iyplayer = new YouTubePlayer();
+  if (iyplayer) {
+    var location = () => window.content.document ? window.content.document.location.href : "";
+    function getVideoUrl()                {return location;}
+    function getVideoId()                 {return (/[?&]v=([^&]+)/.exec(iyplayer.getVideoUrl()) || [null,null])[1];}
+    function loadVideoById(id)            {window.content.document.location.href = "https://www.youtube.com/watch?v=" + id;}
+    function loadVideoByUrl(url)          {window.content.document.location.href = url;}
+    function play()                       {iyplayer.play();}
+    function pause()                      {iyplayer.pause();}
+    function stop()                       {iyplayer.stop();}
+    function setVolume(v)                 {iyplayer.setVolume(v);}
+    function seekTo(s)                    {iyplayer.seekTo(s);}
+    function getCurrentTime()             {return iyplayer.getCurrentTime();}
+    function getAvailableQualityLevels()  {return iyplayer.getAvailableQualityLevels();}
+    function getTitle()                   {return iyplayer.getTitle();}
+    function getDuration()                {return iyplayer.getDuration();}
+    function setPlaybackQuality(q)        {iyplayer.setPlaybackQuality(q);}
+   
+    unsafeWindow.iyplayerListener = function (e) {
+      background.send('player-state-changed', {
+        state: e,
+        currentTime: getCurrentTime(),
+        id: getVideoId()
+      });
+    };
+    iyplayer.addEventListener("onStateChange", "iyplayerListener");  
 
-  background.send('player-details', {
-    id: getVideoId(),
-    title: getTitle().toLowerCase(),
-    duration: getDuration()
-  });
-    
-  background.send('iplayer-qualityLevels-content-script', {
-    qualityLevels: getAvailableQualityLevels(),
-    id: getVideoId()
-  });
-  background.receive("player-play", function (videoId) {
-    if (videoId == getVideoId()) {
-      play();
-    }
-  });
-  background.receive("player-pause", function (videoId) {
-    if (videoId == getVideoId() || videoId == 'all') {
-      pause();
-    }
-  });
-  background.receive("player-stop", function () {
-    seekTo(0); // due to a bug in stop
-    pause();
-  });
-  background.receive("player-seek", function (obj) {
-    if (obj.videoId == getVideoId()) {
-      seekTo(obj.second);
-    }
-  });
-  background.receive("iplayer-currentTime", function () {
-    background.send('iplayer-currentTime-content-script', {
-      currentTime: getCurrentTime(),
+    background.send('player-details', {
+      id: getVideoId(),
+      title: getTitle().toLowerCase(),
+      duration: getDuration()
+    });
+      
+    background.send('iplayer-qualityLevels-content-script', {
+      qualityLevels: getAvailableQualityLevels(),
       id: getVideoId()
     });
-  });
-  background.receive("playback-quality-update-common", function (data) {
-    if (data.id == getVideoId()) {
-      setPlaybackQuality(data.quality);
-    }
-  });
-  background.receive("player-new-id", function (obj) { 
-    if (obj.id == getVideoId()) {
-      loadVideoById(obj.newID);
-    }
-  });
-  background.receive("popupVolumeIndex", function (vol) {
-    setVolume(vol * 10);
-  });
-  background.receive("request-inits", function (obj) {
-    getAvailableQualityLevels(); // Must be here to work!
-    setVolume(obj.volume * 10);
-  });
-  background.send('request-inits');
-  
-  window.addEventListener("beforeunload", function() {  
-    background.send('player-state-changed', {
-      state: -1,
-      id: getVideoId(),
-      currentTime: 0
+    background.receive("player-play", function (videoId) {
+      if (videoId == getVideoId()) {
+        play();
+      }
     });
-  });
+    background.receive("player-pause", function (videoId) {
+      if (videoId == getVideoId() || videoId == 'all') {
+        pause();
+      }
+    });
+    background.receive("player-stop", function () {
+      seekTo(0); // due to a bug in stop
+      pause();
+    });
+    background.receive("player-seek", function (obj) {
+      if (obj.videoId == getVideoId()) {
+        seekTo(obj.second);
+      }
+    });
+    background.receive("iplayer-currentTime", function () {
+      background.send('iplayer-currentTime-content-script', {
+        currentTime: getCurrentTime(),
+        id: getVideoId()
+      });
+    });
+    background.receive("playback-quality-update-common", function (data) {
+      if (data.id == getVideoId()) {
+        setPlaybackQuality(data.quality);
+      }
+    });
+    background.receive("player-new-id", function (obj) { 
+      if (obj.id == getVideoId()) {
+        loadVideoById(obj.newID);
+      }
+    });
+    background.receive("popupVolumeIndex", function (vol) {
+      setVolume(vol * 10);
+    });
+    background.receive("request-inits", function (obj) {
+      getAvailableQualityLevels(); // Must be here to work!
+      setVolume(obj.volume * 10);
+    });
+    background.send('request-inits');
+    
+    window.addEventListener("beforeunload", function() {  
+      background.send('player-state-changed', {
+        state: -1,
+        id: getVideoId(),
+        currentTime: 0
+      });
+    });
+  }
 }

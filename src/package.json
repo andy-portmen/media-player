@@ -1,14 +1,24 @@
 {
   "name": "iyplayer",
-  "version": "0.2.8",
+  "version": "0.3.1",
   "title": "Media Player for YouTube™",
   "id": "jid1-dgnICqQgv2AUZw",
   "description": "Media Player for YouTube™",
-  "author": "Sarah Avilov",
   "license": "MPL 2.0",
   "main": "common",
-
   "permissions": {
-    "unsafe-content-script": true
-  }
+    "unsafe-content-script": true,
+    "private-browsing": true,
+    "cross-domain-content": 
+    [
+      "https://fonts.gstatic.com/*"
+    ]
+  },
+  "preferences": [{
+    "name": "openOptions",
+    "title": "Open Options",
+    "label": "Options",
+    "type": "control",
+    "value": "this is the default string value"
+  }]
 }

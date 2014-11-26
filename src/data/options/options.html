@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html>
+  <head>
+    <title>Options - Media Player for YouTube™</title>
+    <meta charset="utf-8"/>
+    <link rel="icon" type="image/png" href="../icon16.png">
+    <link rel="stylesheet" type="text/css" href="options.css">
+    <link rel="stylesheet" type="text/css" href="colorpicker/mcColorPicker.css"/>
+  </head>
+  <body class="flex">
+    <div id="header" class="flex">
+      <div style="">
+        <span>Media Player for YouTube™</span>
+        <br/>
+        <span class="description">is an open-source project that aims to enhance the overall YouTube user-experience by providing more control in what the playback process is concerned.</span>
+      </div>
+    </div>
+    <div id="content" class="flex">
+      <table width="100%">
+        <tr>
+          <td>Number of YouTube History Items</td>
+          <td>
+            <span>Enter the desired number of history items you want save to memory </span><input data-pref="youtube.numberHistoryItems" type="number" min="0"></input>
+            <p class="note">The minimum number is 0.</p>
+          </td>
+        </tr>
+        <tr>
+          <td>Toolbar-Popup UI Color</td>
+          <td>
+            <span>Pick a color for toolbar-popup UI </span>
+            <input data-pref="popup.color" class="color" readonly='true'/>
+            <p class="note">Default toolbar-color is Gray.</p>
+          </td>
+        </tr>
+        <tr>
+          <td>Clear Media Player History</td>
+          <td>
+            <span>Click to clear Media Player history: </span><span class="flat-button" id="clear-history">Clear History</span>
+            <p class="note">This options only clears the Media Player history not your YouTube account history.</p>
+          </td>
+        </tr>
+        <tr>
+          <table id="youtube-playlist-table" width="100%">
+            <tr>
+              <td>YouTube PlayList Names</td>
+              <td>Add to Toolbar-Popup</td>
+              <td>Number of Videos</td>
+              <td>Account</td>
+            </tr>
+          </table>
+        </tr>
+        <tr>
+          <table id="youtube-history-table" width="100%">
+            <tr>
+              <td>PlayList Details</td>
+              <td>Video Title</td>
+              <td>Duration</td>
+            </tr>
+          </table>
+        </tr>
+      </table>
+    </div>
+
+    <script type='text/javascript' src="options.js"></script>
+    <script type="text/javascript" src="colorpicker/mcColorPicker.js"></script>
+
+  </body>
+</html>

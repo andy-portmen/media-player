@@ -1,13 +1,12 @@
 {
   "name": "Media Player for YouTube™",
-  "version": "0.2.8",
+  "version": "0.3.1",
   "manifest_version": 2,
   "short_name": "iyplayer",
   "description": "Media Player for YouTube™",
-  "author": "Sarah Avilov",
   "permissions": [
-    "storage",
     "tabs", 
+    "storage",
     "<all_urls>"
   ],
   "browser_action": {
@@ -16,7 +15,7 @@
     "default_title": "Media Player for YouTube™"
   },
   "background": {
-    "scripts": ["lib/chrome/task.js", "lib/chrome/chrome.js", "lib/common.js"]
+    "page": "lib/chrome/background.html"
   },
   "content_scripts": [{
     "matches": ["http://www.youtube.com/*", "https://www.youtube.com/*"],
@@ -24,7 +23,7 @@
     "js": ["data/content_script/chrome_inject.js"], 
     "run_at": "document_start"
   }],
-  "options_page": "data/chrome/options/options.html",
+  "options_page": "data/options/options.html",
   "icons": {
     "16": "data/icon16.png",
     "48": "data/icon48.png",

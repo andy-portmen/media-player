@@ -1,0 +1,137 @@
+.flex {
+  display: -webkit-flex;
+  display: flex;
+  flex-direction: column;
+  -webkit-flex-direction: column;
+}
+.note, .description {
+  padding: 0;
+  font-size: 85%;
+  margin: 5px 0 0 0;
+}
+.note {
+  color: black !important;
+}
+.description {
+  color: white !important;
+}
+.warning {
+  color: #FB8F91;
+}
+.box {
+  width:100%;
+  display: table;
+}
+.box label {
+  display: table-cell;
+  width: 1px;
+  white-space: nowrap;
+  padding-right: 5px;
+}
+.box input,
+.box select {
+  display: table-cell;
+  width:100%;
+}
+
+.spacer {
+  height: 18px;
+  margin: 0;
+}
+
+.only-safari,
+.only-mac,
+.only-firefox {
+  display: none;
+}
+.safari .only-safari,
+.mac .only-mac,
+.firefox .only-firefox {
+  display: block;
+}
+
+body {
+  align-items: center;
+  -webkit-align-items: center;
+  margin: 0;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+body,table {
+  color: #222;
+  font-size: 14px;
+  font-family: arial,sans-serif;
+}
+
+input[type=number] {
+  width: 45px;
+}
+
+input[type=text] {
+  width: 100%;
+}
+
+input[data-pref='youtube.numberHistoryItems']{
+  width: 50px;
+}
+
+label>input {
+  vertical-align: middle;
+}
+
+#header {
+  width: 100%;
+  color: white;
+  background: #757575 url(../icon48.png) left 30px center no-repeat;
+  border-bottom: solid 5px #E5E5E5;
+  height: 94px;
+  justify-content: center;
+  -webkit-justify-content: center;
+}
+#header>div>span {
+  padding-left: 105px;
+}
+#header>div:nth-child(1)>span:nth-child(1) {
+  font-size: 140%;
+}
+#content>table>tbody>tr {
+  border-bottom: solid 1px #E5E5E5;
+}
+#content>table>tbody>tr>td {
+  padding: 20px 0 20px 0;
+}
+#content>table>tbody>tr>td:nth-child(1){
+  width: 280px;
+  font-weight: bold;
+  vertical-align: top;
+}
+
+.flat-button {
+  outline: 0;
+  padding: 0;
+  margin: 0;
+  width: 200px;
+  height: 30px;
+  color: #2b2b2b;
+  cursor: pointer;
+  position: relative;
+  vertical-align: top;
+  font-size: 14px;
+  text-align: center;
+  border: solid 1px #A4A5A6;
+  border-radius: 1px;
+  -webkit-border-radius: 1px;
+  -moz-border-radius: 1px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -webkit-transition: 0.3s ease all;
+  -moz-transition: 0.3s ease all;
+  transition: 0.3s ease all;
+}
+.flat-button:hover {
+  background: #A4A5A6;
+  color: #fff;
+}

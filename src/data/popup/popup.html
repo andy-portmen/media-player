@@ -7,13 +7,13 @@
     <div id="controls-div">
       <table id="controls-table">
         <tbody>
-          <tr> 
-            <td name="previous" id="previous-td" title="Play Previous Track"></td>
+          <tr>
+            <td name="previous" id="previous-td" title="Play previous track"></td>
             <td name="play" id="play-td" title="Play/Pause"></td>
-            <td name="next" id="next-td" title="Play Next Track"></td>
+            <td name="next" id="next-td" title="Play next track"></td>
             <td name="stop" id="stop-td" title="Stop"></td>
-            <td id="loop-all-td" title="Loop Through All Tracks"></td>
-            <td name="volume" id="volume-td" title="Change Volume">
+            <td id="loop-all-td" title="Loop through all tracks"></td>
+            <td name="volume" id="volume-td" title="Change the volume">
               <div value="0"></div>
               <div value="1"></div>
               <div value="2"></div>
@@ -26,41 +26,43 @@
               <div value="9"></div>
               <div value="10"></div>
             </td>
+            <td id="options-td" title="Open Options Page"></td>
           </tr>
         </tbody>
-      </table> 
+      </table>
     </div>
     <div id="playlist-div">
       <table id="items-scroll-table">
-      <tr>
-        <td>
-         <table id="items-table">
-          <tr><td name='drag' draggable="true" title="Drag"></td><td name='play-icon'></td><td name='track'></td><td name='time'></td><td name='close-track'></td><td name='loop-track'></td><td name='save-track' title="Add to Favourite"></td><td name='quality-td' title="Settings"><select name="quality-select"></select></td></tr>
-          <tr><td name='drag' draggable="true" title="Drag"></td><td name='play-icon'></td><td name='track'></td><td name='time'></td><td name='close-track'></td><td name='loop-track'></td><td name='save-track' title="Add to Favourite"></td><td name='quality-td' title="Settings"><select name="quality-select"></select></td></tr>
-          <tr><td name='drag' draggable="true" title="Drag"></td><td name='play-icon'></td><td name='track'></td><td name='time'></td><td name='close-track'></td><td name='loop-track'></td><td name='save-track' title="Add to Favourite"></td><td name='quality-td' title="Settings"><select name="quality-select"></select></td></tr>
-          <tr><td name='drag' draggable="true" title="Drag"></td><td name='play-icon'></td><td name='track'></td><td name='time'></td><td name='close-track'></td><td name='loop-track'></td><td name='save-track' title="Add to Favourite"></td><td name='quality-td' title="Settings"><select name="quality-select"></select></td></tr>
-          <tr><td name='drag' draggable="true" title="Drag"></td><td name='play-icon'></td><td name='track'></td><td name='time'></td><td name='close-track'></td><td name='loop-track'></td><td name='save-track' title="Add to Favourite"></td><td name='quality-td' title="Settings"><select name="quality-select"></select></td></tr>
-         </table>
-        </td>
-        <td>
-          <table id="scroll-table">
-            <tr><td id="scroll-up-td" title="Scroll Up"></td></tr>
-            <tr><td id="scroll-down-td" title="Scroll Down"></td></tr>
-          </table>
-        </td>
-      </tr>
+        <tr>
+          <td>
+           <table id="items-table">
+            <tr><td name='drag' draggable="true" title="Drag"></td><td name='play-icon'></td><td name='track'></td><td name='time'></td><td name='close-track'></td><td name='loop-track'></td><td name='save-track' title="Add to Favourite"></td><td name='quality-td' title="Settings"><select name="quality-select"></select></td></tr>
+            <tr><td name='drag' draggable="true" title="Drag"></td><td name='play-icon'></td><td name='track'></td><td name='time'></td><td name='close-track'></td><td name='loop-track'></td><td name='save-track' title="Add to Favourite"></td><td name='quality-td' title="Settings"><select name="quality-select"></select></td></tr>
+            <tr><td name='drag' draggable="true" title="Drag"></td><td name='play-icon'></td><td name='track'></td><td name='time'></td><td name='close-track'></td><td name='loop-track'></td><td name='save-track' title="Add to Favourite"></td><td name='quality-td' title="Settings"><select name="quality-select"></select></td></tr>
+            <tr><td name='drag' draggable="true" title="Drag"></td><td name='play-icon'></td><td name='track'></td><td name='time'></td><td name='close-track'></td><td name='loop-track'></td><td name='save-track' title="Add to Favourite"></td><td name='quality-td' title="Settings"><select name="quality-select"></select></td></tr>
+            <tr><td name='drag' draggable="true" title="Drag"></td><td name='play-icon'></td><td name='track'></td><td name='time'></td><td name='close-track'></td><td name='loop-track'></td><td name='save-track' title="Add to Favourite"></td><td name='quality-td' title="Settings"><select name="quality-select"></select></td></tr>
+           </table>
+          </td>
+        </tr>
       </table>
     </div>
     <div id="search-div">
       <table id="search-table">
-        <tr> 
+        <tr>
+          <td id="scroll-td">
+            <table id="scroll-table">
+              <tr><td id="scroll-up-td" title="Scroll Up"></td></tr>
+              <tr><td id="scroll-down-td" title="Scroll Down"></td></tr>
+            </table>
+          </td>
           <td id="input-td"><input id="input" type="text" dir="auto"/></td>
-          <td id="search-td" title="Search Tracks"></td>
+          <td id="search-td" title="Search playlist"></td>
         </tr>
-      </table> 
+      </table>
     </div>
 
     <script type="text/javascript" src="popup.js"></script>
+    <script type="text/javascript" src="css_browser_selector.js"></script>
 
   </body>
 </html>
