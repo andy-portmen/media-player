@@ -34,7 +34,10 @@ if (config.welcome.version != version()) {
 }
 
 /* Fetch YouTube Playlist */
+var fetchCommand = true;
 function fetchYouTubePlaylist(callback) {
+  if (!fetchCommand) return;
+  fetchCommand = false;
   YouTubePlayList = [];
   get("https://www.youtube.com/").then(function (data) {
     function extractData(data) {
@@ -73,6 +76,8 @@ function fetchYouTubePlaylist(callback) {
           }
         }
         Promise.all(YouTubePlayListUrls.map(function(url) {return get(url)})).then(function (arr) {
+          fetchCommand = true;  /* allow another fetch */
+          optionsSendHistory(); /* update options page */
           callback(arr.map(extractData));
         });
       }
@@ -86,9 +91,11 @@ function saveToHistory(data) {
   var numberHistoryItems = config.youtube.numberHistoryItems;
   var history = config.youtube.history;
   for (var i = 0; i < history.length; i++) {
-    if (data.id == history[i][0]) return;
+    if (data.id == history[i][0]) return; /* do not save duplicate items */
   }
-  history.push([data.id, data.title, data.duration]);
+  var title = data.title; /* replacing XML chars */
+  title = title.replace(/\&quot\;/g, '"').replace(/\&apos\;/g, "'").replace(/\&gt\;/g, '>').replace(/\&lt\;/, '<').replace(/\&amp\;/, '&');
+  history.push([data.id, title, data.duration]);
   if (history.length > numberHistoryItems) history.shift();
   config.youtube.history = history;
 }
@@ -340,21 +347,25 @@ function playList(e, c) {
     }
   }
 }
+function optionsSendHistory() {
+  options.send("youtube-history-table", {
+    history: config.youtube.history,
+    playlist: YouTubePlayList
+  });
+}
 options.receive("youtube-history-table", function () {
-  function OSYHT() {
-    options.send("youtube-history-table", {
-      history: config.youtube.history,
-      playlist: YouTubePlayList
-    });
-  }
-  OSYHT();                       /* 1. send data to popup right after message received     */
-  fetchYouTubePlaylist(OSYHT);   /* 2. send data to popup after fetching data from YouTube */
+  optionsSendHistory();                 /* 1. send data to popup right after message received     */
+  fetchYouTubePlaylist(function () {});  /* 2. send data to popup after fetching data from YouTube */
 });
 options.receive("add-youtube-playlist", function (e) {
   playList(e, 'a');
 });
 options.receive("remove-youtube-playlist", function (e) {
   playList(e, 'r');
+});
+options.receive("clear-youtube-history", function (e) {
+  clearHistory();
+  optionsSendHistory();
 });
 options.receive("changed", function (o) {
   config.set(o.pref, o.value);

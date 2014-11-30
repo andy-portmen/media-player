@@ -1,6 +1,6 @@
 body {
   width: 500px;
-  height: 212px;
+  height: 222px;
   border: 0;
   overflow: hidden;
   margin: 0 5px 0 5px;
@@ -60,7 +60,7 @@ select:focus {
   margin: 0;
 }
 #search-div{
-  border: solid 1px rgba(0, 0, 0, 0.5);
+  border: solid 1px #cdcdcd;
 }
 #controls-table {
   height: 37px;
@@ -72,7 +72,8 @@ select:focus {
   border: 0;
   -webkit-transition: 300ms opacity;
   -moz-transition: 300ms opacity;
-  opacity: 0.7;
+  box-shadow: 0 0px 2px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.2) inset;
+  opacity: 0.7;        
 }
 #controls-table tr td:hover {
   -webkit-transition: 0ms opacity;
@@ -112,21 +113,19 @@ select:focus {
   width: 75px;
   background: url(volume.png) no-repeat center center;
 }
-#volume-td:hover {
-    background: white url();
-}
 #volume-td div {
   width: 4px;
-  border: solid 1px #DCDCDC;
   border-radius: 3px;
-  display: inline-block;
   margin: 0 0 -6px -3px;
+  display: inline-block;
+  border: solid 1px #DCDCDC;
   -webkit-transition: 300ms opacity;
   -moz-transition: 300ms opacity;
+  background-color: black;
   opacity: 0.0;
 }
 #volume-td div:nth-child(1) {
-  margin-left: 4;
+  margin-left: 4px;
 }
 #volume-td:hover div{
   -webkit-transition: 0ms opacity;

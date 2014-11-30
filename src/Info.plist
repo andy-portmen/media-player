@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>Author</key>
-	<string>philip tholus</string>
+	<string>Andy Portmen</string>
 	<key>Builder Version</key>
-	<string>10600.1.25</string>
+	<string>10600.1.25.1</string>
 	<key>CFBundleDisplayName</key>
 	<string>Media Player for YouTube™</string>
 	<key>CFBundleIdentifier</key>
@@ -19,7 +19,7 @@
 	<key>Chrome</key>
 	<dict>
 		<key>Database Quota</key>
-		<real>5242880</real>
+		<real>10485760</real>
 		<key>Global Page</key>
 		<string>lib/safari/safari.html</string>
 		<key>Popovers</key>
@@ -28,7 +28,7 @@
 				<key>Filename</key>
 				<string>data/popup/popup.html</string>
 				<key>Height</key>
-				<real>212</real>
+				<real>222</real>
 				<key>Identifier</key>
 				<string>safari-panel</string>
 				<key>Width</key>
@@ -64,7 +64,7 @@
 	<key>Description</key>
 	<string>Media Player for YouTube™</string>
 	<key>DeveloperIdentifier</key>
-	<string>76829B2D75</string>
+	<string>2F69STTEPB</string>
 	<key>ExtensionInfoDictionaryVersion</key>
 	<string>1.0</string>
 	<key>Permissions</key>
@@ -82,6 +82,6 @@
 		</dict>
 	</dict>
 	<key>Website</key>
-	<string>http://add0n.com/media-player.html?version=0.3.1</string>
+	<string>http://add0n.com/media-player.html</string>
 </dict>
 </plist>

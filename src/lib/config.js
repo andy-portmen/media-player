@@ -22,7 +22,7 @@ config.welcome = {
 
 config.popup = {
   get color () {
-    return storage.read("popup-color") || "#AAAAAA";
+    return storage.read("popup-color") || "#999966";
   },
   set color (val) {
     storage.write("popup-color", val);
@@ -64,6 +64,8 @@ config.youtube = {
     return parseInt(storage.read("numberHistoryItems") || "20");
   },
   set numberHistoryItems (val) {
+    val = parseInt(val);
+    if (val < 0) val = 0;
     storage.write("numberHistoryItems", val + '');
   }
 }

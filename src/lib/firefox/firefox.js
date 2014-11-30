@@ -66,7 +66,7 @@ pageMod.PageMod({
 
 var popup = require("sdk/panel").Panel({
   width: 500,
-  height: 212,
+  height: 222,
   contentURL: data.url("./popup/popup.html"),
   contentScriptFile: [data.url("./popup/popup.js"), data.url("./popup/css_browser_selector.js")]
 });

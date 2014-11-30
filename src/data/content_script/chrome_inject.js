@@ -109,7 +109,6 @@ if (window.frameElement === null) { /* filter-out iFrame window */
 
   function init() {
     if (currentVideoID) { /* unload previously played video */
-      background.receive('***', function (){}); /* to initiate message passing */
       background.send('player-state-changed', {
         state: -1,
         id: currentVideoID,

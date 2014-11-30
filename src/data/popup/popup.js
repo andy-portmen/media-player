@@ -61,6 +61,53 @@ else {  // Firefox
     init();
   });
 }
+
+/* creates a global "addWheelListener" method */
+(function(window, document) {
+  var prefix = "", _addEventListener, onwheel, support;
+  if (window.addEventListener) { /* detect event model */
+    _addEventListener = "addEventListener";
+  } else {
+    _addEventListener = "attachEvent";
+    prefix = "on";
+  }
+  /* detect available wheel event */
+  support = "onwheel" in document.createElement("div") ? "wheel" : document.onmousewheel !== undefined ? "mousewheel" : "DOMMouseScroll";
+
+  window.addWheelListener = function(elem, callback, useCapture) {
+    _addWheelListener(elem, support, callback, useCapture);
+    if (support == "DOMMouseScroll") {
+      _addWheelListener(elem, "MozMousePixelScroll", callback, useCapture);
+    }
+  };
+  
+  function _addWheelListener(elem, eventName, callback, useCapture) {
+    elem[_addEventListener](prefix + eventName, support == "wheel" ? callback : function(originalEvent) {
+      !originalEvent && (originalEvent = window.event);
+      var event = {
+        originalEvent: originalEvent,
+        target: originalEvent.target || originalEvent.srcElement,
+        type: "wheel",
+        deltaMode: originalEvent.type == "MozMousePixelScroll" ? 0 : 1,
+        deltaX: 0,
+        deltaZ: 0,
+        preventDefault: function() {
+          originalEvent.preventDefault ?
+            originalEvent.preventDefault() :
+            originalEvent.returnValue = false;
+        }
+      };
+      if (support == "mousewheel") {
+        event.deltaY = -1 / 40 * originalEvent.wheelDelta;
+        originalEvent.wheelDeltaX && (event.deltaX = -1 / 40 * originalEvent.wheelDeltaX);
+      } else {
+        event.deltaY = originalEvent.detail;
+      }
+      return callback(event);
+    }, useCapture || false);
+  }
+})(window, document);
+
 /**** wrapper (end) ****/
 
 var states, currentTimes, YouTubeHistory = [], historyIndex, globalStatus = '', BSB = 347, ZP = 54;
@@ -107,8 +154,8 @@ function color(c) {
   var css2 = "#loop-all-td[loopIndex='0'],#loop-all-td[loopIndex='1'],#loop-all-td[loopIndex='2'],#loop-all-td[loopIndex='3'],#loop-all-td[loopIndex='4'],#loop-all-td[loopIndex='5'],#loop-all-td[loopIndex='6'] {background-color: " + color + ";}";
   var css3 = "#items-table tr td{background-color: " + color + " !important;}";
   var css4 = "#items-table tr td:hover {background-color: " + hover + " !important;}";
-  var css5 = "#scroll-up-td:hover,#scroll-down-td:hover{background-color: " + hover + ";}"
-  var css6 = "#volume-td div {background-color: " + hover + ";}";
+  var css5 = "#scroll-up-td:hover,#scroll-down-td:hover{background-color: " + hover + ";}";
+  var css6 = "#volume-td:hover {background: " + color + "url();}";
   var css7 = "#controls-table tr td {color: " + hover + "}";
   var css = css0 + css1 + css2 + css3 + css4 + css5 + css6 + css7;
 
@@ -405,10 +452,11 @@ $('scroll-down-td').addEventListener('click', function () {
   background.send("history-update");
 }, false);
 
-$("playlist-div").addEventListener("mousewheel", function (e) {
-  historyIndex += e.wheelDelta > 0 ? -1 : +1;
+addWheelListener($("playlist-div"), function(e) {
+  historyIndex += e.deltaY > 0 ? +1 : -1;
   background.send("history-update");
-}, false);
+  e.preventDefault(); 
+});
 
 function commonWords(title, wordlist) {
   title = title.toLowerCase();
@@ -540,4 +588,3 @@ function AddListeners(E) {
     });
   }
 }
-

@@ -112,106 +112,125 @@ window.addEventListener("load", function () {
     colorPicker.addEventListener('click', function () {pickColor("popup.color")});
   }, 200);
   background.send("youtube-history-table");
+  document.getElementById("clear-youtube-history").addEventListener("click", function () {
+    background.send("clear-youtube-history");
+  }, false);
 }, false);
 
 background.receive("youtube-history-table", function (obj) {
-  function addColumn(tr, txt, parent) {
-    var table = document.getElementById(parent);
+  var history = obj.history, playlist = obj.playlist;
+
+  function addColumn(tr, txt) {
     var td = document.createElement("td");
     td.textContent = txt;
     td.dir = "auto";
     tr.appendChild(td);
-    table.appendChild(tr);
   }
-  function clearTable(parent) {
-    var table = document.getElementById(parent);
+  function getTable(name) {
+    var table = document.getElementById(name);
     var trs = table.getElementsByTagName('tr');
     for (var i = trs.length - 1; i > 0; i--) {
       table.removeChild(trs[i]); /* clear table */
     }
+    return table;
   }
-  var parent = "";
-  var history = obj.history;
-  var playlist = obj.playlist;
-  
-  /* PlayList Titles */
-  parent = "youtube-playlist-table";
-  clearTable(parent);
-  for (var i = 0; i < playlist.length; i++) {
-    var videos = playlist[i].videos;
-    var tr = document.createElement("tr");
-    addColumn(tr, playlist[i].title, parent);
+  function addColumn_a(tr, title, url, tag) {
     var td = document.createElement("td");
-    var checkbox = document.createElement('input');
-    checkbox.type = "checkbox";
-    checkbox.name = playlist[i].title.toLowerCase();
-    if (playlist[i].include == 'true') {
-      checkbox.checked = true;
-      /* update video-list if the check-box is checked */
-      background.send("add-youtube-playlist", checkbox.name);
-    }
-    checkbox.addEventListener("change", function (e) {
-      if (e.target.checked) {
-        background.send("add-youtube-playlist", e.target.getAttribute("name"));
-      }
-      else {
-        background.send("remove-youtube-playlist", e.target.getAttribute("name"));
-      }
-    });
-    td.appendChild(checkbox);
-    tr.appendChild(td);
-    addColumn(tr, playlist[i].videos.length, parent);
-    addColumn(tr, playlist[i].account, parent);
-  }
-  
-  /* Media Player PlayList */
-  parent = "youtube-history-table";
-  clearTable(parent);
-  for (var i = 0; i < history.length; i++) {
-    var tr = document.createElement("tr");
-    var title = history[i][1];
-    var url = 'https://www.youtube.com/watch?v=' + history[i][0];
-    var duration = (new Date(1970,1,1,0,0,history[i][2])).toTimeString().substr(0,8);
-    addColumn(tr, "Media Player", parent);
     var a = document.createElement('a');
-    a.appendChild(document.createTextNode(title));
+    var txt = document.createTextNode(title);
+    a.appendChild(txt);
     a.dir = "auto";
     a.title = unescape(title); 
-    a.href = url;
+    if (url) a.href = url;
     a.target = "_blank";
-    a.style.textDecoration = 'none';
     a.style.color = '#797979';
-    if (history[i][3] == 'added') a.style.fontWeight = 'bold';
-    tr.appendChild(a);
-    addColumn(tr, duration, parent);
+    a.style.textDecoration = 'none';
+    if (tag) a.style.fontWeight = 'bold';
+    td.appendChild(a);
+    tr.appendChild(td);
+  }
+  function addSeparator(table) {
+    var tr = document.createElement("tr");
+    addColumn(tr, '.....................');
+    addColumn(tr, '...........................................................................................');
+    addColumn(tr, '..............');
+    table.appendChild(tr);
+  }
+  function addEmptyRow(table, title, count) {
+    var tr = document.createElement("tr");
+    addColumn(tr, title);
+    addColumn_a(tr, "none", '', false);
+    addColumn(tr, "none");
+    if (count == 4) addColumn(tr, "unknown");
+    table.appendChild(tr);
   }
   
+  /* PlayList Titles */
+  var table = getTable("youtube-playlist-table");
+  if (playlist.length) {
+    for (var i = 0; i < playlist.length; i++) {
+      var videos = playlist[i].videos;
+      var tr = document.createElement("tr");
+      addColumn(tr, playlist[i].title);
+      var td = document.createElement("td");
+      var checkbox = document.createElement('input');
+      checkbox.type = "checkbox";
+      checkbox.name = playlist[i].title.toLowerCase();
+      if (playlist[i].include == 'true') {
+        checkbox.checked = true;
+        /* update video-list if the check-box is checked */
+        background.send("add-youtube-playlist", checkbox.name);
+      }
+      checkbox.addEventListener("change", function (e) {
+        if (e.target.checked) {
+          background.send("add-youtube-playlist", e.target.getAttribute("name"));
+        }
+        else {
+          background.send("remove-youtube-playlist", e.target.getAttribute("name"));
+        }
+      });
+      td.appendChild(checkbox);
+      tr.appendChild(td);
+      addColumn(tr, playlist[i].videos.length);
+      addColumn(tr, playlist[i].account);
+      table.appendChild(tr);
+    }
+  }
+  else addEmptyRow(table, "unknown", 4);
+  
+  /* Media Player PlayList */
+  var table = getTable("youtube-history-table");
+  if (history.length) {
+    for (var i = 0; i < history.length; i++) {
+      var tr = document.createElement("tr");
+      var title = history[i][1];
+      var url = 'https://www.youtube.com/watch?v=' + history[i][0];
+      var duration = (new Date(1970,1,1,0,0,history[i][2])).toTimeString().substr(0,8);
+      addColumn(tr, "Media Player");
+      addColumn_a(tr, title, url, history[i][3] == 'added');
+      addColumn(tr, duration);
+      table.appendChild(tr);
+    }
+  }
+  else addEmptyRow(table, "Media Player", 3);
+  addSeparator(table); /* separator */
+  
   /* YouTube PlayList */
-  parent = "youtube-history-table";
   for (var i = 0; i < playlist.length; i++) {
     var videos = playlist[i].videos;
-    for (var j = 0; j < videos.length; j++) {
-      var tr = document.createElement("tr");
-      var title = videos[j].title;
-      var url = 'https://www.youtube.com/watch?v=' + videos[j].id;
-      var duration = (new Date(1970,1,1,0,0,videos[j].duration)).toTimeString().substr(0,8);
-      addColumn(tr, playlist[i].title, parent);
-      var a = document.createElement('a');
-      a.appendChild(document.createTextNode(title));
-      a.dir = "auto";
-      a.title = unescape(title); 
-      a.href = url;
-      a.target = "_blank";
-      a.style.textDecoration = 'none';
-      a.style.color = '#797979';
-      if (videos[j].addToFavorite == 'added') a.style.fontWeight = 'bold';
-      tr.appendChild(a);
-      addColumn(tr, duration, parent);
+    if (videos.length) {
+      for (var j = 0; j < videos.length; j++) {
+        var tr = document.createElement("tr");
+        var title = videos[j].title;
+        var url = 'https://www.youtube.com/watch?v=' + videos[j].id;
+        var duration = (new Date(1970,1,1,0,0,videos[j].duration)).toTimeString().substr(0,8);
+        addColumn(tr, playlist[i].title);
+        addColumn_a(tr, title, url, videos[j].addToFavorite == 'added');
+        addColumn(tr, duration);
+        table.appendChild(tr);
+      }
     }
-    /* separator */
-    var tr = document.createElement("tr");
-    addColumn(tr, '.....................', parent);
-    addColumn(tr, '...........................................................................................', parent);
-    addColumn(tr, '..............', parent);
+    else addEmptyRow(table, playlist[i].title, 3);
+    addSeparator(table); /* separator */
   }
 });
